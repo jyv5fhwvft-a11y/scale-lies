@@ -129,7 +129,6 @@ function buildSilhouette(woman) {
   const visceral = woman.composition.visceralFat;
   const subcut = woman.composition.subcutaneousFat;
 
-  // Map 0-100 scores to visual dimensions
   const muscleWidth  = 20 + muscle   * 0.28;
   const viscWidth    = 10 + visceral * 0.22;
   const subcutWidth  = 26 + subcut   * 0.18;
@@ -288,7 +287,7 @@ function initModule1() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MODULE 2 — Ozempic toggle simulation (corrected math)
+   MODULE 2 — Ozempic toggle simulation
    ═══════════════════════════════════════════════════════════ */
 const m2 = {
   svg: null,
@@ -350,10 +349,6 @@ function renderModule2() {
   const base = OZEMPIC.baseline;
   const split = protect ? OZEMPIC.withProtection : OZEMPIC.withoutProtection;
 
-  /* CORRECT MATH
-     lossPct = % of TOTAL starting body weight lost (0-20%).
-     Split shares are % of the weight lost.
-  */
   const totalLostKg  = base.weight * (lossPct / 100);
   const fatLostKg    = totalLostKg * (split.fatShare / 100);
   const muscleLostKg = totalLostKg * (split.muscleShare / 100);
@@ -467,7 +462,7 @@ function initModule3() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MODULE 3 SLIDER — Menopause age slider (new)
+   MODULE 3 SLIDER — Menopause age slider
    ═══════════════════════════════════════════════════════════ */
 function initModule3Slider() {
   const wrap = document.getElementById("menopauseSlider");
@@ -485,7 +480,6 @@ function initModule3Slider() {
   const msgEl     = document.getElementById("msMessage");
   const svg       = document.getElementById("msFigure");
 
-  // Draw the figure once
   svg.innerHTML = `
     <g id="msBody">
       <ellipse id="msHipFat" cx="100" cy="230" rx="56" ry="46" fill="var(--fat)" opacity="0.7"/>
@@ -532,7 +526,6 @@ function initModule3Slider() {
     musValEl.textContent = s.muscle;
     msgEl.textContent    = s.message;
 
-    // SVG body reactions
     const hipFatEl = document.getElementById("msHipFat");
     hipFatEl.setAttribute("rx", 30 + s.hipFat * 0.34);
     hipFatEl.setAttribute("ry", 20 + s.hipFat * 0.32);
@@ -550,7 +543,7 @@ function initModule3Slider() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MODULE 4 QUIZ — Active recall (new)
+   MODULE 4 QUIZ — Active recall with reset
    ═══════════════════════════════════════════════════════════ */
 function initModule4Quiz() {
   const wrap = document.getElementById("quiz");
@@ -562,6 +555,7 @@ function initModule4Quiz() {
 
   questionEl.textContent = QUIZ.question;
 
+  // Build buttons once
   QUIZ.options.forEach((opt) => {
     const btn = document.createElement("button");
     btn.className = "quiz-btn";
@@ -571,12 +565,21 @@ function initModule4Quiz() {
     optionsWrap.appendChild(btn);
   });
 
+  // "Try again" reset button — hidden until an answer is given
+  const resetBtn = document.createElement("button");
+  resetBtn.className = "quiz-reset";
+  resetBtn.textContent = "Try again";
+  resetBtn.hidden = true;
+  resetBtn.addEventListener("click", resetQuiz);
+  wrap.appendChild(resetBtn);
+
   function handleAnswer(id, btn) {
     const allBtns = optionsWrap.querySelectorAll(".quiz-btn");
     const isCorrect = id === QUIZ.correct;
 
     allBtns.forEach((b) => {
       b.disabled = true;
+      b.classList.remove("correct", "wrong");
       if (b.dataset.id === QUIZ.correct) b.classList.add("correct");
       if (b === btn && !isCorrect) b.classList.add("wrong");
     });
@@ -584,6 +587,22 @@ function initModule4Quiz() {
     resultEl.hidden = false;
     resultEl.className = "quiz-result " + (isCorrect ? "ok" : "bad");
     resultEl.textContent = isCorrect ? QUIZ.correctText : QUIZ.incorrectText;
+
+    resetBtn.hidden = false;
+  }
+
+  function resetQuiz() {
+    const allBtns = optionsWrap.querySelectorAll(".quiz-btn");
+    allBtns.forEach((b) => {
+      b.disabled = false;
+      b.classList.remove("correct", "wrong");
+    });
+
+    resultEl.hidden = true;
+    resultEl.textContent = "";
+    resultEl.className = "quiz-result";
+
+    resetBtn.hidden = true;
   }
 }
 
