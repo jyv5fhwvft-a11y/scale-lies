@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Scale Lies — Weight Loss, Body Composition & Menopause</title>
+  <meta name="description" content="An interactive dashboard on why BMI misleads, what GLP-1 weight loss actually takes off, and how menopause rewrites body composition." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════════════════════ -->
+  <header class="hero">
+    <p class="eyebrow">An interactive evidence dashboard</p>
+    <h1>The Scale Lies</h1>
+    <p class="subtitle">
+      BMI measures mass. <strong>Body composition measures risk.</strong>
+      GLP-1 drugs change the math — but only if you protect what matters.
+    </p>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num" data-count="35" data-suffix="%">0%</div>
+        <div class="stat-label">of GLP-1 weight loss can be muscle</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-count="40" data-suffix="%">0%</div>
+        <div class="stat-label">rise in visceral fat after menopause</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-count="5" data-suffix="×">0×</div>
+        <div class="stat-label">more muscle lost without resistance training</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECTION NAV
+  ═══════════════════════════════════════════════════════════ -->
+  <nav class="section-nav" aria-label="Section navigation">
+    <a href="#module-1" class="nav-link active">01 · BMI Myth</a>
+    <a href="#module-2" class="nav-link">02 · Ozempic Reality</a>
+    <a href="#module-3" class="nav-link">03 · Menopause</a>
+    <a href="#module-4" class="nav-link">04 · Takeaways</a>
+  </nav>
+
+  <main>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODULE 1 — THE BMI MISCONCEPTION
+    ═════════════════════════════════════════════════════════ -->
+    <section id="module-1" class="module">
+      <div class="module-head">
+        <span class="module-num">01</span>
+        <h2>The BMI Misconception</h2>
+        <p class="module-sub">
+          Three women. Three BMIs. The number on the scale doesn't tell you what's inside.
+        </p>
+      </div>
+
+      <div class="cards" id="cards" aria-live="polite"></div>
+
+      <div class="controls">
+        <button id="revealBtn" class="btn primary">Reveal Body Composition</button>
+        <button id="resetBtn" class="btn ghost" hidden>Reset</button>
+      </div>
+
+      <p class="hint" id="hint">
+        Press <strong>Reveal</strong> to see what the scale can't show, then tap a woman to inspect her risk profile.
+      </p>
+
+      <!-- Modal for inspecting one subject -->
+      <section class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+          <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+          <h2 id="modalTitle"></h2>
+          <p id="modalBmi" class="modal-bmi"></p>
+          <div class="meters" id="modalMeters"></div>
+          <p id="modalNote" class="modal-note"></p>
+          <div class="risk" id="modalRisk"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODULE 2 — OZEMPIC REALITY CHECK
+    ═════════════════════════════════════════════════════════ -->
+    <section id="module-2" class="module">
+      <div class="module-head">
+        <span class="module-num">02</span>
+        <h2>The Ozempic Reality Check</h2>
+        <p class="module-sub">
+          The injection lowers the weight. <strong>What</strong> you lose depends on what you do alongside it.
+        </p>
+      </div>
+
+      <div class="stage">
+        <!-- Live figure -->
+        <div class="figure-wrap">
+          <svg id="figure" viewBox="0 0 240 360" role="img" aria-label="Body composition figure"></svg>
+          <div class="figure-caption" id="figureCaption">
+            Baseline: 82 kg total · 36 kg fat · 26 kg muscle
+          </div>
+        </div>
+
+        <!-- Controls + meters -->
+        <div class="panel">
+          <div class="toggle-row">
+            <label class="switch">
+              <input type="checkbox" id="protectToggle" />
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-label" id="toggleLabel">Add protein + resistance training</span>
+          </div>
+
+          <div class="slider-row">
+            <label for="lossSlider">Weight loss on injection</label>
+            <input type="range" id="lossSlider" min="0" max="20" step="1" value="0" />
+            <span class="loss-val" id="lossVal">0%</span>
+          </div>
+
+          <div class="meters">
+            <div class="meter-row">
+              <span>Total weight</span>
+              <div class="meter-track"><div class="meter-fill weight" id="mWeight"></div></div>
+              <span class="meter-val" id="vWeight">—</span>
+            </div>
+            <div class="meter-row">
+              <span>Fat mass</span>
+              <div class="meter-track"><div class="meter-fill fat" id="mFat"></div></div>
+              <span class="meter-val" id="vFat">—</span>
+            </div>
+            <div class="meter-row">
+              <span>Muscle mass</span>
+              <div class="meter-track"><div class="meter-fill muscle" id="mMuscle"></div></div>
+              <span class="meter-val" id="vMuscle">—</span>
+            </div>
+          </div>
+
+          <div class="verdict" id="verdict">Move the slider to begin.</div>
+        </div>
+      </div>
+
+      <p class="hint">
+        Toggle <em>protein + resistance training</em> on, then drag the slider to the same weight-loss value.
+        Compare what happens to muscle. <br/>
+        <span class="cite">Muscle-share range 25–45% based on STEP 1 and semaglutide trial tabulations¹²³.</span>
+      </p>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODULE 3 — MENOPAUSE & VISCERAL FAT
+    ═════════════════════════════════════════════════════════ -->
+    <section id="module-3" class="module">
+      <div class="module-head">
+        <span class="module-num">03</span>
+        <h2>Menopause Rewrites the Map</h2>
+        <p class="module-sub">
+          Estrogen decline redistributes fat to the abdomen and accelerates muscle loss —
+          <strong>often while the scale barely moves.</strong>
+        </p>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline" id="timeline">
+        <div class="tl-step" data-step="1">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-era">Premenopause · ~30s–40s</div>
+            <div class="tl-title">Estrogen protects</div>
+            <p>Fat stores preferentially on hips and thighs (subcutaneous), which is metabolically less harmful. Muscle mass is relatively stable.</p>
+          </div>
+        </div>
+
+        <div class="tl-step" data-step="2">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-era">Perimenopause · ~45–51</div>
+            <div class="tl-title">The migration begins</div>
+            <p>Estrogen fluctuates. Fat begins shifting from hips to the abdomen. Muscle declines ~1% per year. Total weight may not change.</p>
+          </div>
+        </div>
+
+        <div class="tl-step" data-step="3">
+          <div class="tl-dot"></div>
+          <div class="tl-card">
+            <div class="tl-era">Postmenopause · 52+</div>
+            <div class="tl-title">Visceral fat rises</div>
+            <p>Visceral fat increases <strong>25–40%</strong> vs. premenopausal women at the same BMI. Insulin resistance and atherogenic lipids rise.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body-map callout -->
+      <div class="callout-grid">
+        <div class="callout">
+          <div class="callout-icon">⚠</div>
+          <div>
+            <h3>The compounding risk</h3>
+            <p>
+              A postmenopausal woman entering GLP-1 therapy already has <strong>lower muscle mass</strong>
+              than she did at 40. A drug that costs 35% of weight loss as muscle compounds
+              a problem menopause already started.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">📏</div>
+          <div>
+            <h3>The scale is blind to this</h3>
+            <p>
+              A 2026 review confirms BMI can stay stable while waist circumference increases,
+              visceral fat accumulates, and muscle strength declines.
+              <strong>Weight is a lagging indicator.</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint">
+        <span class="cite">Visceral fat redistribution and mortality associations from postmenopausal cohort studies⁴⁵⁶.</span>
+      </p>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         MODULE 4 — TAKEAWAYS + REFERENCES
+    ═════════════════════════════════════════════════════════ -->
+    <section id="module-4" class="module">
+      <div class="module-head">
+        <span class="module-num">04</span>
+        <h2>What to Take With You</h2>
+        <p class="module-sub">Four sentences you can defend.</p>
+      </div>
+
+      <ol class="takeaways">
+        <li><strong>BMI measures mass, not composition.</strong> A "normal" BMI can hide visceral fat and low muscle — the highest-risk profile for postmenopausal women.</li>
+        <li><strong>Where fat sits matters more than how much.</strong> Visceral fat is metabolically active and inflammatory; subcutaneous fat is comparatively benign.</li>
+        <li><strong>Menopause redistributes fat to the abdomen and accelerates muscle loss</strong> — risk rises even when the scale doesn't move.</li>
+        <li><strong>On GLP-1 therapy, protein + resistance training shifts the loss.</strong> Muscle share of weight lost drops from ~35% to ~8%. That lever is yours to pull.</li>
+      </ol>
+
+      <div class="references">
+        <h3>References</h3>
+        <ol>
+          <li>Wilding JPH, et al. Once-weekly semaglutide in adults with overweight or obesity (STEP 1). <em>N Engl J Med.</em> 2021;384:989–1002.</li>
+          <li>Idilman IS, et al. Lean mass loss in GLP-1 receptor agonist users: a systematic review and meta-analysis. <em>PubMed</em>; 2026 (7 RCTs, n=821).</li>
+          <li>Conte C, et al. Is weight loss-induced muscle mass loss clinically relevant? <em>Diabetes Care.</em> 2024;47(Suppl):S1–S8.</li>
+          <li>Lovejoy JC, et al. Increased visceral fat and decreased energy expenditure during the menopausal transition. <em>Int J Obes.</em> 2008;32:949–958.</li>
+          <li>Abdulnour J, et al. The effect of the menopausal transition on body composition and cardiometabolic risk factors. <em>Menopause.</em> 2012;19:760–767.</li>
+          <li>Prevalence of normal-weight central obesity and mortality in postmenopausal women. <em>JAMA Netw Open</em> (WHI cohort).</li>
+          <li>Sahagún M, et al. High-protein diet and resistance exercise preserve muscle mass during GLP-1 therapy: 12-month observational cohort (n=3,642). 2026.</li>
+          <li>US FDA. Ozempic (semaglutide) prescribing information. Novo Nordisk; current label.</li>
+          <li>US FDA. Wegovy (semaglutide) prescribing information — indication and boxed warning.</li>
+        </ol>
+        <p class="footnote">
+          Simulation is illustrative and educational only; not a clinical diagnostic tool.
+          Individual responses vary. Consult a clinician before starting or changing therapy.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <span>The Scale Lies · Built for educational use · Illustrative simulation, not medical advice.</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
