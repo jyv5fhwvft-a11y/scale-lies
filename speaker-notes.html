@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speaker Notes — The Scale Lies</title>
+  <style>
+    :root {
+      --bg: #0f1220;
+      --bg-glow: #1b2140;
+      --panel: #1a1f33;
+      --panel-2: #232a44;
+      --border: #2c3454;
+      --text: #eef1f8;
+      --muted: #9aa3bd;
+      --accent: #7c5cff;
+      --accent-2: #4e8cff;
+      --muscle: #39d98a;
+      --fat: #ffb020;
+      --danger: #ff5470;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --ease: cubic-bezier(.4,0,.2,1);
+      --dur-fast: .18s;
+      --dur-med: .35s;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, var(--bg-glow), var(--bg));
+      color: var(--text);
+      line-height: 1.55;
+      padding: 1rem;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 1rem 0 3rem; }
+
+    header { text-align: center; margin-bottom: 2rem; }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: .7rem;
+      color: var(--accent);
+      font-weight: 700;
+      margin: 0 0 .5rem;
+    }
+    header h1 {
+      margin: 0 0 .5rem;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: -0.02em;
+    }
+    header p {
+      color: var(--muted);
+      margin: 0 auto;
+      max-width: 560px;
+      font-size: .95rem;
+    }
+
+    .progress {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(15,18,32,.92);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: .8rem 1rem;
+      margin-bottom: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .progress-label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #0c1022;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 999px;
+      transition: width var(--dur-med) var(--ease);
+    }
+    .progress-count {
+      font-size: .8rem;
+      color: var(--accent);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .reset-all {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: .35rem .8rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .reset-all:hover { border-color: var(--danger); color: var(--danger); }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      padding: 1rem 1.2rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .card-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+      font-size: .85rem;
+      flex-shrink: 0;
+    }
+    .card-title {
+      flex: 1;
+      font-weight: 700;
+      font-size: 1.02rem;
+    }
+    .card-time {
+      font-size: .78rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .card-arrow {
+      color: var(--accent);
+      font-size: 1.2rem;
+      font-weight: 700;
+      transition: transform var(--dur-fast);
+      flex-shrink: 0;
+    }
+    .card.open .card-arrow { transform: rotate(180deg); }
+
+    .card-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--dur-med) var(--ease);
+    }
+    .card.open .card-body { max-height: 4000px; }
+
+    .card-inner {
+      padding: 0 1.2rem 1.2rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0;
+    }
+    .card-inner > *:first-child { margin-top: 1rem; }
+
+    .say {
+      background: rgba(124,92,255,.1);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: .8rem 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+      color: var(--text);
+    }
+    .say::before {
+      content: "SAY  ";
+      font-style: normal;
+      font-weight: 800;
+      font-size: .7rem;
+      color: var(--accent);
+      letter-spacing: .1em;
+    }
+
+    .do {
+      background: rgba(57,217,138,.08);
+      border-left: 3px solid var(--muscle);
+      border-radius: var(--radius-sm);
+      padding: .8rem 1rem;
+      margin: 1rem 0;
+      color: var(--text);
+    }
+    .do::before {
+      content: "DO  ";
+      font-weight: 800;
+      font-size: .7rem;
+      color: var(--muscle);
+      letter-spacing: .1em;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .7rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid #232a44;
+      font-size: .9rem;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-item input {
+      margin-top: .35rem;
+      width: 20px;
+      height: 20px;
+      accent-color: var(--muscle);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .check-item label {
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .check-item input:checked + label {
+      color: var(--muscle);
+      text-decoration: line-through;
+      opacity: .7;
+    }
+
+    .timing {
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+      margin-bottom: .8rem;
+    }
+    .timing strong { color: var(--accent); font-size: 1.1rem; }
+
+    .tip {
+      background: #0c1022;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .7rem .9rem;
+      font-size: .84rem;
+      color: var(--muted);
+      margin: 1rem 0;
+    }
+    .tip strong { color: var(--text); }
+
+    footer {
+      text-align: center;
+      color: #5f688a;
+      font-size: .75rem;
+      padding: 2rem 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <p class="eyebrow">Speaker Notes · Presenter Only</p>
+      <h1>The Scale Lies — Run-Through</h1>
+      <p>Tap each section to open. Check off items as you rehearse. Close everything before the talk — this page is for you, not the audience.</p>
+    </header>
+
+    <div class="progress">
+      <span class="progress-label">Progress</span>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="progress-count" id="progressCount">0 / 0</span>
+      <button class="reset-all" id="resetAll">Reset all</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         OPENING
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-opening">
+      <div class="card-head">
+        <span class="card-num">0</span>
+        <span class="card-title">Opening — the thesis in three numbers</span>
+        <span class="card-time">~90 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <div class="say">"BMI measures mass. Body composition measures risk. GLP-1 drugs change the math — but only if you protect what matters. Here are three numbers to hold on to for the next 15 minutes."</div>
+          <div class="do">Point at each stat window as you say it. Pause after each number. Let it land.</div>
+          <div class="check-item">
+            <input type="checkbox" id="c0-1" />
+            <label for="c0-1">Say the subtitle once, clearly, no paraphrase</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c0-2" />
+            <label for="c0-2">Read the three stats: 35% muscle, 40% visceral rise, 5× muscle loss</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c0-3" />
+            <label for="c0-3">Transition: "Let me show you what I mean."</label>
+          </div>
+          <div class="tip"><strong>If the 5× stat gets challenged:</strong> "It's direction, not precision. The comparison is trained vs. untrained women on GLP-1 — the spread is large and consistent."</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SECTION 01
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-01">
+      <div class="card-head">
+        <span class="card-num">01</span>
+        <span class="card-title">BMI Misconception — Sim 1 reveal</span>
+        <span class="card-time">~2 min</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <div class="say">"Three women, three BMIs. Before I reveal — which one is healthiest? Shout it out."</div>
+          <div class="do">Wait for guesses. Most pick Woman A. Then click <strong>Reveal Body Composition</strong>. Pause 3 seconds. Let them see the color shift.</div>
+          <div class="check-item">
+            <input type="checkbox" id="c1-1" />
+            <label for="c1-1">Ask audience to guess before revealing</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c1-2" />
+            <label for="c1-2">Click Reveal — silhouettes cascade to X-ray view</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c1-3" />
+            <label for="c1-3">Click Woman A — modal opens, red risk banner</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c1-4" />
+            <label for="c1-4">Point at her low muscle bar (22) and high visceral bar (78)</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c1-5" />
+            <label for="c1-5">Close modal. Click Woman B — green banner, high muscle (76), low visceral (18)</label>
+          </div>
+          <div class="say">"BMI 21 — the 'healthy' number — has the highest visceral fat and the lowest muscle. BMI 24 — the 'overweight' number — has the strongest muscle. The scale told the wrong story."</div>
+          <div class="do">Close modal. Scroll to Section 02 without explaining the mechanism yet — save it for 03.</div>
+          <div class="tip"><strong>If you're running long:</strong> skip Woman C entirely. Just A vs. B is enough contrast.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SECTION 02
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-02">
+      <div class="card-head">
+        <span class="card-num">02</span>
+        <span class="card-title">Ozempic Reality Check — the red→green flip</span>
+        <span class="card-time">~2 min</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <div class="say">"Now here's what the injection does. A woman starts at 82 kilograms. Watch what happens to her muscle when she loses 20% — with and without protection."</div>
+          <div class="do">Leave the toggle <strong>OFF</strong>. Drag slider slowly from 0% to 20%. Do not narrate during the drag — let the muscle bar drop in silence.</div>
+          <div class="check-item">
+            <input type="checkbox" id="c2-1" />
+            <label for="c2-1">Toggle OFF. Drag slider 0 → 20%</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c2-2" />
+            <label for="c2-2">Pause at 20%. Verdict is RED. Muscle bar has visibly dropped</label>
+          </div>
+          <div class="say">"Twenty percent lost. A third of it came from muscle. For a postmenopausal woman, that's frailty. And the scale — the scale looks great."</div>
+          <div class="do">Now click the toggle <strong>ON</strong>. Same 20% — don't touch the slider.</div>
+          <div class="check-item">
+            <input type="checkbox" id="c2-3" />
+            <label for="c2-3">Toggle ON — muscle bar jumps back up, verdict turns GREEN</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c2-4" />
+            <label for="c2-4">Pause 3 seconds on the green verdict before speaking</label>
+          </div>
+          <div class="say">"Same drug. Same 20%. Add protein and resistance training — and the muscle stays. The injection lowers the weight. What you lose is your choice. That lever is yours to pull."</div>
+          <div class="tip"><strong>The flip is the punchline.</strong> Don't fill the silence. Let the audience watch the bar move and the color change. Say nothing for 3 full seconds. That's the moment they'll remember.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SECTION 03
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-03">
+      <div class="card-head">
+        <span class="card-num">03</span>
+        <span class="card-title">Menopause slider — why this hits you hardest</span>
+        <span class="card-time">~90 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <div class="say">"So why does this matter more for you than for a 30-year-old? Watch the BMI badge on the left. Don't take your eyes off it."</div>
+          <div class="do">Drag the age slider slowly from 35 → 60. Pause at each stop. Let them see the message change.</div>
+          <div class="check-item">
+            <input type="checkbox" id="c3-1" />
+            <label for="c3-1">Point at BMI badge — "BMI 24.0 unchanged"</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c3-2" />
+            <label for="c3-2">Drag 35 → 60. Hip bar shrinks. Visceral bar grows. Muscle shrinks</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c3-3" />
+            <label for="c3-3">Point at BMI badge again — still 24.0</label>
+          </div>
+          <div class="say">"Same weight. Same BMI. Her belly fat has more than quadrupled. Her muscle has dropped by nearly half. That's what estrogen loss does. And the scale never moved."</div>
+          <div class="do">Scroll to the three timeline cards and the two callout boxes. Read the timeline left-to-right quickly (one sentence each). Land on the "compounding risk" callout.</div>
+          <div class="say">"By the time a woman starts GLP-1 therapy at 55, she's already lost muscle from menopause. A drug that takes another third as muscle compounds a problem that was already there."</div>
+          <div class="tip"><strong>If the slider feels slow:</strong> drag in 3 stops (35 → 45 → 52 → 60) rather than continuously. Cleaner visually.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SECTION 04
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-04">
+      <div class="card-head">
+        <span class="card-num">04</span>
+        <span class="card-title">Quiz + takeaways — active recall, then close</span>
+        <span class="card-time">~2 min</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <div class="say">"Before I close — quick check. Which of these three women should be most worried about her metabolic health?"</div>
+          <div class="do">Let the audience answer aloud. <strong>Don't reveal yet.</strong> Wait for them to shout "A" or "B" or "C" or "all."</div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-1" />
+            <label for="c4-1">Ask the question. Wait for audience answers</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-2" />
+            <label for="c4-2">Deliberately click Woman B first (the most common wrong answer)</label>
+          </div>
+          <div class="say">"Not quite. Woman A — BMI 21 — is actually the highest risk. Low muscle, high visceral fat. The scale told the wrong story. Most of you picked B or C — and that's exactly the mistake this talk is about."</div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-3" />
+            <label for="c4-3">Click "Try again" — buttons reset, all four active</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-4" />
+            <label for="c4-4">Click Woman A — green banner, correct answer</label>
+          </div>
+          <div class="say">"Woman A. BMI 21. The 'healthy' number. And now you know why."</div>
+          <div class="do">Pause. Scroll to the four takeaways. Read them slowly — bullet by bullet — while the audience reads along.</div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-5" />
+            <label for="c4-5">Read takeaway 1: "BMI measures mass, not composition"</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-6" />
+            <label for="c4-6">Read takeaway 2: "Where fat sits matters more than how much"</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-7" />
+            <label for="c4-7">Read takeaway 3: "Menopause redistributes fat to the abdomen"</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="c4-8" />
+            <label for="c4-8">Read takeaway 4: "Protein + resistance training shifts the loss — 35% down to 8%"</label>
+          </div>
+          <div class="say">"One sentence to take home: the injection lowers the weight. What you lose is your choice. That lever is yours to pull. Thank you — I'll take questions."</div>
+          <div class="tip"><strong>If someone asks about the 35%→8% figure:</strong> "That's the muscle share of weight lost — 35% without resistance training, 8% with. It's the lever, not a guarantee."</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         PRE-STAGE CHECKLIST
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-pre">
+      <div class="card-head">
+        <span class="card-num">✓</span>
+        <span class="card-title">Pre-stage checklist — 5 minutes before</span>
+        <span class="card-time">~3 min</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <div class="timing">Do these in order. Don't skip.</div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-1" />
+            <label for="cp-1">Open live site in Firefox on iPad</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-2" />
+            <label for="cp-2">Hard refresh (close tab, reopen, navigate)</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-3" />
+            <label for="cp-3">Scroll to Section 01 — Reveal works</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-4" />
+            <label for="cp-4">Scroll to Section 02 — drag slider to 20% OFF, toggle ON, back to 0%</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-5" />
+            <label for="cp-5">Scroll to Section 03 — drag slider to 60, back to 35</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-6" />
+            <label for="cp-6">Scroll to Section 04 — click B, Try again, click A</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-7" />
+            <label for="cp-7">Close this speaker-notes page or hide it in another tab</label>
+          </div>
+          <div class="check-item">
+            <input type="checkbox" id="cp-8" />
+            <label for="cp-8">Screen at full brightness. Volume muted. Notifications off</label>
+          </div>
+          <div class="tip"><strong>Backup plan:</strong> If Wi-Fi dies, refresh won't work. Keep a screen recording of Sim 2's red→green flip on your iPad Photos as the emergency fallback. That's the one moment you can't skip.</div>
+        </div>
+      </div>
+    </article>
+
+    <footer>
+      <p>Speaker Notes · The Scale Lies · Not for audience view</p>
+    </footer>
+
+  </div>
+
+  <script>
+    // ── Expand/collapse cards ─────────────────────────────
+    document.querySelectorAll(".card-head").forEach((head) => {
+      head.addEventListener("click", () => {
+        head.closest(".card").classList.toggle("open");
+      });
+    });
+
+    // ── Progress tracking ─────────────────────────────────
+    const checkboxes = document.querySelectorAll('.check-item input[type="checkbox"]');
+    const progressFill = document.getElementById("progressFill");
+    const progressCount = document.getElementById("progressCount");
+
+    function updateProgress() {
+      const total = checkboxes.length;
+      const done = Array.from(checkboxes).filter((c) => c.checked).length;
+      const pct = total ? (done / total) * 100 : 0;
+      progressFill.style.width = `${pct}%`;
+      progressCount.textContent = `${done} / ${total}`;
+    }
+
+    checkboxes.forEach((c) => {
+      c.addEventListener("change", () => {
+        try {
+          localStorage.setItem("scaleLiesCheck_" + c.id, c.checked ? "1" : "0");
+        } catch (e) {}
+        updateProgress();
+      });
+
+      // Restore from localStorage
+      try {
+        if (localStorage.getItem("scaleLiesCheck_" + c.id) === "1") {
+          c.checked = true;
+        }
+      } catch (e) {}
+    });
+
+    // ── Reset all ─────────────────────────────────────────
+    document.getElementById("resetAll").addEventListener("click", () => {
+      if (!confirm("Reset all checkboxes?")) return;
+      checkboxes.forEach((c) => {
+        c.checked = false;
+        try { localStorage.removeItem("scaleLiesCheck_" + c.id); } catch (e) {}
+      });
+      updateProgress();
+    });
+
+    // ── Open first card by default on first visit ─────────
+    try {
+      if (!localStorage.getItem("scaleLiesVisited")) {
+        document.getElementById("s-opening").classList.add("open");
+        localStorage.setItem("scaleLiesVisited", "1");
+      }
+    } catch (e) {}
+
+    updateProgress();
+  </script>
+</body>
+</html>
