@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Speaker Notes — The Scale Lies</title>
+  <title>Speaker Notes — The Weight You Lose vs. The Body You Keep</title>
   <style>
     :root {
       --bg: #0f1220;
@@ -18,9 +18,6 @@
       --muscle: #39d98a;
       --fat: #ffb020;
       --danger: #ff5470;
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --radius-sm: 8px;
       --ease: cubic-bezier(.4,0,.2,1);
       --dur-fast: .18s;
       --dur-med: .35s;
@@ -34,12 +31,12 @@
       line-height: 1.55;
       padding: 1rem;
     }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 1rem 0 3rem; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 1rem 0 4rem; }
 
-    header { text-align: center; margin-bottom: 2rem; }
+    header { text-align: center; margin-bottom: 1.6rem; }
     .eyebrow {
       text-transform: uppercase;
-      letter-spacing: .18em;
+      letter-spacing: .2em;
       font-size: .7rem;
       color: var(--accent);
       font-weight: 700;
@@ -47,43 +44,53 @@
     }
     header h1 {
       margin: 0 0 .5rem;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-size: clamp(1.5rem, 3.5vw, 2.2rem);
       letter-spacing: -0.02em;
     }
     header p {
       color: var(--muted);
       margin: 0 auto;
-      max-width: 560px;
-      font-size: .95rem;
+      max-width: 620px;
+      font-size: .92rem;
     }
 
+    /* Start presentation button */
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      margin: 1.4rem auto 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      text-decoration: none;
+      padding: .85rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: .92rem;
+      box-shadow: 0 10px 26px rgba(124,92,255,.35);
+      transition: transform .12s var(--ease);
+    }
+    .start-btn:active { transform: scale(.97); }
+    .start-btn::after { content: "→"; font-size: 1.1rem; }
+
+    /* Progress bar */
     .progress {
       position: sticky;
       top: 0;
       z-index: 20;
-      background: rgba(15,18,32,.92);
+      background: rgba(15,18,32,.94);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: .8rem 1rem;
-      margin-bottom: 1.4rem;
+      border-radius: 12px;
+      padding: .7rem 1rem;
+      margin: 1.4rem 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
     }
-    .progress-label {
-      font-size: .8rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .progress-bar {
-      flex: 1;
-      height: 8px;
-      background: #0c1022;
-      border-radius: 999px;
-      overflow: hidden;
-    }
+    .progress-label { font-size: .75rem; color: var(--muted); font-weight: 600; }
+    .progress-bar { flex: 1; height: 7px; background: #0c1022; border-radius: 999px; overflow: hidden; }
     .progress-fill {
       height: 100%;
       width: 0;
@@ -91,28 +98,24 @@
       border-radius: 999px;
       transition: width var(--dur-med) var(--ease);
     }
-    .progress-count {
-      font-size: .8rem;
-      color: var(--accent);
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
+    .progress-count { font-size: .78rem; color: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }
     .reset-all {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: .35rem .8rem;
+      padding: .3rem .7rem;
       border-radius: 999px;
-      font-size: .75rem;
+      font-size: .72rem;
       cursor: pointer;
       font-family: inherit;
     }
     .reset-all:hover { border-color: var(--danger); color: var(--danger); }
 
+    /* Cards */
     .card {
       background: linear-gradient(180deg, var(--panel), var(--panel-2));
       border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
+      border-radius: 16px;
       margin-bottom: 1rem;
       overflow: hidden;
     }
@@ -120,7 +123,7 @@
       display: flex;
       align-items: center;
       gap: .8rem;
-      padding: 1rem 1.2rem;
+      padding: .9rem 1.1rem;
       cursor: pointer;
       user-select: none;
     }
@@ -128,78 +131,79 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--accent);
       color: white;
       font-weight: 800;
-      font-size: .85rem;
+      font-size: .8rem;
       flex-shrink: 0;
     }
-    .card-title {
-      flex: 1;
-      font-weight: 700;
-      font-size: 1.02rem;
-    }
-    .card-time {
-      font-size: .78rem;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
+    .card-num.dash { background: var(--muscle); }
+    .card-num.chk  { background: var(--fat); color: #0c1022; }
+    .card-title { flex: 1; font-weight: 700; font-size: .96rem; }
+    .card-time { font-size: .74rem; color: var(--muted); font-variant-numeric: tabular-nums; }
     .card-arrow {
       color: var(--accent);
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 700;
       transition: transform var(--dur-fast);
-      flex-shrink: 0;
     }
     .card.open .card-arrow { transform: rotate(180deg); }
-
-    .card-body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height var(--dur-med) var(--ease);
-    }
+    .card-body { max-height: 0; overflow: hidden; transition: max-height var(--dur-med) var(--ease); }
     .card.open .card-body { max-height: 4000px; }
-
-    .card-inner {
-      padding: 0 1.2rem 1.2rem;
-      border-top: 1px solid var(--border);
-      margin-top: 0;
-    }
+    .card-inner { padding: 0 1.1rem 1.1rem; border-top: 1px solid var(--border); }
     .card-inner > *:first-child { margin-top: 1rem; }
+
+    /* Slide jump link */
+    .slide-link {
+      display: inline-block;
+      background: rgba(124,92,255,.15);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      text-decoration: none;
+      padding: .3rem .7rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 700;
+      margin-bottom: .8rem;
+    }
+    .slide-link:hover { background: rgba(124,92,255,.25); }
+    .slide-link.dash {
+      background: rgba(57,217,138,.15);
+      border-color: var(--muscle);
+      color: var(--muscle);
+    }
+    .slide-link.dash:hover { background: rgba(57,217,138,.25); }
 
     .say {
       background: rgba(124,92,255,.1);
       border-left: 3px solid var(--accent);
-      border-radius: var(--radius-sm);
-      padding: .8rem 1rem;
-      margin: 1rem 0;
+      border-radius: 8px;
+      padding: .75rem .95rem;
+      margin: .8rem 0;
       font-style: italic;
-      color: var(--text);
     }
     .say::before {
       content: "SAY  ";
       font-style: normal;
       font-weight: 800;
-      font-size: .7rem;
+      font-size: .68rem;
       color: var(--accent);
       letter-spacing: .1em;
     }
-
     .do {
       background: rgba(57,217,138,.08);
       border-left: 3px solid var(--muscle);
-      border-radius: var(--radius-sm);
-      padding: .8rem 1rem;
-      margin: 1rem 0;
-      color: var(--text);
+      border-radius: 8px;
+      padding: .75rem .95rem;
+      margin: .8rem 0;
     }
     .do::before {
       content: "DO  ";
       font-weight: 800;
-      font-size: .7rem;
+      font-size: .68rem;
       color: var(--muscle);
       letter-spacing: .1em;
     }
@@ -207,53 +211,38 @@
     .check-item {
       display: flex;
       align-items: flex-start;
-      gap: .7rem;
-      padding: .5rem 0;
+      gap: .6rem;
+      padding: .45rem 0;
       border-bottom: 1px solid #232a44;
-      font-size: .9rem;
+      font-size: .88rem;
     }
     .check-item:last-child { border-bottom: none; }
     .check-item input {
-      margin-top: .35rem;
-      width: 20px;
-      height: 20px;
+      margin-top: .3rem;
+      width: 18px;
+      height: 18px;
       accent-color: var(--muscle);
       cursor: pointer;
       flex-shrink: 0;
     }
-    .check-item label {
-      cursor: pointer;
-      color: var(--muted);
-    }
-    .check-item input:checked + label {
-      color: var(--muscle);
-      text-decoration: line-through;
-      opacity: .7;
-    }
-
-    .timing {
-      text-align: center;
-      color: var(--muted);
-      font-size: .85rem;
-      margin-bottom: .8rem;
-    }
-    .timing strong { color: var(--accent); font-size: 1.1rem; }
+    .check-item label { cursor: pointer; color: var(--muted); }
+    .check-item input:checked + label { color: var(--muscle); text-decoration: line-through; opacity: .7; }
 
     .tip {
       background: #0c1022;
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: .7rem .9rem;
-      font-size: .84rem;
+      border-radius: 8px;
+      padding: .7rem .85rem;
+      font-size: .82rem;
       color: var(--muted);
-      margin: 1rem 0;
+      margin: .8rem 0;
     }
     .tip strong { color: var(--text); }
 
     footer {
       text-align: center;
       color: #5f688a;
-      font-size: .75rem;
+      font-size: .72rem;
       padding: 2rem 1rem 0;
     }
   </style>
@@ -262,269 +251,350 @@
   <div class="wrap">
 
     <header>
-      <p class="eyebrow">Speaker Notes · Presenter Only</p>
-      <h1>The Scale Lies — Run-Through</h1>
-      <p>Tap each section to open. Check off items as you rehearse. Close everything before the talk — this page is for you, not the audience.</p>
+      <p class="eyebrow">Speaker Notes · Presenter Only · Not Linked Publicly</p>
+      <h1>The Weight You Lose vs. The Body You Keep</h1>
+      <p>Tap cards to open. Check items as you rehearse. Progress saves automatically. <strong>Start the presentation in a separate tab</strong> and work through this list.</p>
+      <a href="index.html#slide-1" class="start-btn" target="_blank" rel="noopener">Start presentation</a>
     </header>
 
     <div class="progress">
       <span class="progress-label">Progress</span>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       <span class="progress-count" id="progressCount">0 / 0</span>
-      <button class="reset-all" id="resetAll">Reset all</button>
+      <button class="reset-all" id="resetAll">Reset</button>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
-         OPENING
-         ═══════════════════════════════════════════════════ -->
-    <article class="card" id="s-opening">
-      <div class="card-head">
-        <span class="card-num">0</span>
-        <span class="card-title">Opening — the thesis in three numbers</span>
-        <span class="card-time">~90 sec</span>
-        <span class="card-arrow">▾</span>
-      </div>
-      <div class="card-body">
-        <div class="card-inner">
-          <div class="say">"BMI measures mass. Body composition measures risk. GLP-1 drugs change the math — but only if you protect what matters. Here are three numbers to hold on to for the next 15 minutes."</div>
-          <div class="do">Point at each stat window as you say it. Pause after each number. Let it land.</div>
-          <div class="check-item">
-            <input type="checkbox" id="c0-1" />
-            <label for="c0-1">Say the subtitle once, clearly, no paraphrase</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c0-2" />
-            <label for="c0-2">Read the three stats: 35% muscle, 40% visceral rise, 5× muscle loss</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c0-3" />
-            <label for="c0-3">Transition: "Let me show you what I mean."</label>
-          </div>
-          <div class="tip"><strong>If the 5× stat gets challenged:</strong> "It's direction, not precision. The comparison is trained vs. untrained women on GLP-1 — the spread is large and consistent."</div>
-        </div>
-      </div>
-    </article>
-
-    <!-- ═══════════════════════════════════════════════════
-         SECTION 01
-         ═══════════════════════════════════════════════════ -->
-    <article class="card" id="s-01">
-      <div class="card-head">
-        <span class="card-num">01</span>
-        <span class="card-title">BMI Misconception — Sim 1 reveal</span>
-        <span class="card-time">~2 min</span>
-        <span class="card-arrow">▾</span>
-      </div>
-      <div class="card-body">
-        <div class="card-inner">
-          <div class="say">"Three women, three BMIs. Before I reveal — which one is healthiest? Shout it out."</div>
-          <div class="do">Wait for guesses. Most pick Woman A. Then click <strong>Reveal Body Composition</strong>. Pause 3 seconds. Let them see the color shift.</div>
-          <div class="check-item">
-            <input type="checkbox" id="c1-1" />
-            <label for="c1-1">Ask audience to guess before revealing</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c1-2" />
-            <label for="c1-2">Click Reveal — silhouettes cascade to X-ray view</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c1-3" />
-            <label for="c1-3">Click Woman A — modal opens, red risk banner</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c1-4" />
-            <label for="c1-4">Point at her low muscle bar (22) and high visceral bar (78)</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c1-5" />
-            <label for="c1-5">Close modal. Click Woman B — green banner, high muscle (76), low visceral (18)</label>
-          </div>
-          <div class="say">"BMI 21 — the 'healthy' number — has the highest visceral fat and the lowest muscle. BMI 24 — the 'overweight' number — has the strongest muscle. The scale told the wrong story."</div>
-          <div class="do">Close modal. Scroll to Section 02 without explaining the mechanism yet — save it for 03.</div>
-          <div class="tip"><strong>If you're running long:</strong> skip Woman C entirely. Just A vs. B is enough contrast.</div>
-        </div>
-      </div>
-    </article>
-
-    <!-- ═══════════════════════════════════════════════════
-         SECTION 02
-         ═══════════════════════════════════════════════════ -->
-    <article class="card" id="s-02">
-      <div class="card-head">
-        <span class="card-num">02</span>
-        <span class="card-title">Ozempic Reality Check — the red→green flip</span>
-        <span class="card-time">~2 min</span>
-        <span class="card-arrow">▾</span>
-      </div>
-      <div class="card-body">
-        <div class="card-inner">
-          <div class="say">"Now here's what the injection does. A woman starts at 82 kilograms. Watch what happens to her muscle when she loses 20% — with and without protection."</div>
-          <div class="do">Leave the toggle <strong>OFF</strong>. Drag slider slowly from 0% to 20%. Do not narrate during the drag — let the muscle bar drop in silence.</div>
-          <div class="check-item">
-            <input type="checkbox" id="c2-1" />
-            <label for="c2-1">Toggle OFF. Drag slider 0 → 20%</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c2-2" />
-            <label for="c2-2">Pause at 20%. Verdict is RED. Muscle bar has visibly dropped</label>
-          </div>
-          <div class="say">"Twenty percent lost. A third of it came from muscle. For a postmenopausal woman, that's frailty. And the scale — the scale looks great."</div>
-          <div class="do">Now click the toggle <strong>ON</strong>. Same 20% — don't touch the slider.</div>
-          <div class="check-item">
-            <input type="checkbox" id="c2-3" />
-            <label for="c2-3">Toggle ON — muscle bar jumps back up, verdict turns GREEN</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c2-4" />
-            <label for="c2-4">Pause 3 seconds on the green verdict before speaking</label>
-          </div>
-          <div class="say">"Same drug. Same 20%. Add protein and resistance training — and the muscle stays. The injection lowers the weight. What you lose is your choice. That lever is yours to pull."</div>
-          <div class="tip"><strong>The flip is the punchline.</strong> Don't fill the silence. Let the audience watch the bar move and the color change. Say nothing for 3 full seconds. That's the moment they'll remember.</div>
-        </div>
-      </div>
-    </article>
-
-    <!-- ═══════════════════════════════════════════════════
-         SECTION 03
-         ═══════════════════════════════════════════════════ -->
-    <article class="card" id="s-03">
-      <div class="card-head">
-        <span class="card-num">03</span>
-        <span class="card-title">Menopause slider — why this hits you hardest</span>
-        <span class="card-time">~90 sec</span>
-        <span class="card-arrow">▾</span>
-      </div>
-      <div class="card-body">
-        <div class="card-inner">
-          <div class="say">"So why does this matter more for you than for a 30-year-old? Watch the BMI badge on the left. Don't take your eyes off it."</div>
-          <div class="do">Drag the age slider slowly from 35 → 60. Pause at each stop. Let them see the message change.</div>
-          <div class="check-item">
-            <input type="checkbox" id="c3-1" />
-            <label for="c3-1">Point at BMI badge — "BMI 24.0 unchanged"</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c3-2" />
-            <label for="c3-2">Drag 35 → 60. Hip bar shrinks. Visceral bar grows. Muscle shrinks</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c3-3" />
-            <label for="c3-3">Point at BMI badge again — still 24.0</label>
-          </div>
-          <div class="say">"Same weight. Same BMI. Her belly fat has more than quadrupled. Her muscle has dropped by nearly half. That's what estrogen loss does. And the scale never moved."</div>
-          <div class="do">Scroll to the three timeline cards and the two callout boxes. Read the timeline left-to-right quickly (one sentence each). Land on the "compounding risk" callout.</div>
-          <div class="say">"By the time a woman starts GLP-1 therapy at 55, she's already lost muscle from menopause. A drug that takes another third as muscle compounds a problem that was already there."</div>
-          <div class="tip"><strong>If the slider feels slow:</strong> drag in 3 stops (35 → 45 → 52 → 60) rather than continuously. Cleaner visually.</div>
-        </div>
-      </div>
-    </article>
-
-    <!-- ═══════════════════════════════════════════════════
-         SECTION 04
-         ═══════════════════════════════════════════════════ -->
-    <article class="card" id="s-04">
-      <div class="card-head">
-        <span class="card-num">04</span>
-        <span class="card-title">Quiz + takeaways — active recall, then close</span>
-        <span class="card-time">~2 min</span>
-        <span class="card-arrow">▾</span>
-      </div>
-      <div class="card-body">
-        <div class="card-inner">
-          <div class="say">"Before I close — quick check. Which of these three women should be most worried about her metabolic health?"</div>
-          <div class="do">Let the audience answer aloud. <strong>Don't reveal yet.</strong> Wait for them to shout "A" or "B" or "C" or "all."</div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-1" />
-            <label for="c4-1">Ask the question. Wait for audience answers</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-2" />
-            <label for="c4-2">Deliberately click Woman B first (the most common wrong answer)</label>
-          </div>
-          <div class="say">"Not quite. Woman A — BMI 21 — is actually the highest risk. Low muscle, high visceral fat. The scale told the wrong story. Most of you picked B or C — and that's exactly the mistake this talk is about."</div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-3" />
-            <label for="c4-3">Click "Try again" — buttons reset, all four active</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-4" />
-            <label for="c4-4">Click Woman A — green banner, correct answer</label>
-          </div>
-          <div class="say">"Woman A. BMI 21. The 'healthy' number. And now you know why."</div>
-          <div class="do">Pause. Scroll to the four takeaways. Read them slowly — bullet by bullet — while the audience reads along.</div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-5" />
-            <label for="c4-5">Read takeaway 1: "BMI measures mass, not composition"</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-6" />
-            <label for="c4-6">Read takeaway 2: "Where fat sits matters more than how much"</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-7" />
-            <label for="c4-7">Read takeaway 3: "Menopause redistributes fat to the abdomen"</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="c4-8" />
-            <label for="c4-8">Read takeaway 4: "Protein + resistance training shifts the loss — 35% down to 8%"</label>
-          </div>
-          <div class="say">"One sentence to take home: the injection lowers the weight. What you lose is your choice. That lever is yours to pull. Thank you — I'll take questions."</div>
-          <div class="tip"><strong>If someone asks about the 35%→8% figure:</strong> "That's the muscle share of weight lost — 35% without resistance training, 8% with. It's the lever, not a guarantee."</div>
-        </div>
-      </div>
-    </article>
-
-    <!-- ═══════════════════════════════════════════════════
-         PRE-STAGE CHECKLIST
+         PRE-STAGE
          ═══════════════════════════════════════════════════ -->
     <article class="card" id="s-pre">
       <div class="card-head">
-        <span class="card-num">✓</span>
-        <span class="card-title">Pre-stage checklist — 5 minutes before</span>
+        <span class="card-num chk">✓</span>
+        <span class="card-title">Pre-stage · 5 minutes before you begin</span>
         <span class="card-time">~3 min</span>
         <span class="card-arrow">▾</span>
       </div>
       <div class="card-body">
         <div class="card-inner">
-          <div class="timing">Do these in order. Don't skip.</div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-1" />
-            <label for="cp-1">Open live site in Firefox on iPad</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-2" />
-            <label for="cp-2">Hard refresh (close tab, reopen, navigate)</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-3" />
-            <label for="cp-3">Scroll to Section 01 — Reveal works</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-4" />
-            <label for="cp-4">Scroll to Section 02 — drag slider to 20% OFF, toggle ON, back to 0%</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-5" />
-            <label for="cp-5">Scroll to Section 03 — drag slider to 60, back to 35</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-6" />
-            <label for="cp-6">Scroll to Section 04 — click B, Try again, click A</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-7" />
-            <label for="cp-7">Close this speaker-notes page or hide it in another tab</label>
-          </div>
-          <div class="check-item">
-            <input type="checkbox" id="cp-8" />
-            <label for="cp-8">Screen at full brightness. Volume muted. Notifications off</label>
-          </div>
-          <div class="tip"><strong>Backup plan:</strong> If Wi-Fi dies, refresh won't work. Keep a screen recording of Sim 2's red→green flip on your iPad Photos as the emergency fallback. That's the one moment you can't skip.</div>
+          <div class="do">Do these 8 items in order. Don't skip. Each one catches a failure mode before the audience sees it.</div>
+          <div class="check-item"><input type="checkbox" id="cp-1" /><label for="cp-1">Open presentation in Firefox: <code>scale-lies/</code> (default URL)</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-2" /><label for="cp-2">Hard refresh: close tab, reopen, navigate</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-3" /><label for="cp-3">Test navigation: tap →, swipe ←, tap a dot</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-4" /><label for="cp-4">Tap slide 4's "Open dashboard → Section 01" link → confirm it loads</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-5" /><label for="cp-5">In dashboard: tap "← Back to presentation" → confirm it returns to the same slide</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-6" /><label for="cp-6">Return to presentation. Navigate to slide 1.</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-7" /><label for="cp-7">Open speaker-notes in a second tab (this page)</label></div>
+          <div class="check-item"><input type="checkbox" id="cp-8" /><label for="cp-8">Screen brightness max, notifications off, volume muted</label></div>
+          <div class="tip"><strong>Emergency backup:</strong> keep a screen recording of the full presentation (15-min run-through) in Photos. If Wi-Fi dies, you play the recording. Not ideal, but no talk dies.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 1 — TITLE
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-1">
+      <div class="card-head">
+        <span class="card-num">1</span>
+        <span class="card-title">Title slide — "The Weight You Lose vs. The Body You Keep"</span>
+        <span class="card-time">~15 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-1" target="_blank" rel="noopener">Open Slide 1</a>
+          <div class="say">"Good [morning/afternoon]. Let me ask you something first — when was the last time you stepped on a scale and felt good about the number?"</div>
+          <div class="do">Pause. Let the room chuckle or sigh. Then continue.</div>
+          <div class="say">"For most of us, that answer is 'not recently.' And I'm here to tell you tonight that the number you're worried about — the one on the scale, the one your doctor writes down, the one on the BMI chart — is telling you the wrong story."</div>
+          <div class="check-item"><input type="checkbox" id="s1-1" /><label for="s1-1">Ask the opening question. Pause for the room's reaction.</label></div>
+          <div class="check-item"><input type="checkbox" id="s1-2" /><label for="s1-2">Deliver the "wrong story" line. Land it. Pause.</label></div>
+          <div class="check-item"><input type="checkbox" id="s1-3" /><label for="s1-3">Tap → to advance</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 2 — THREE NUMBERS
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-2">
+      <div class="card-head">
+        <span class="card-num">2</span>
+        <span class="card-title">Three numbers</span>
+        <span class="card-time">~90 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-2" target="_blank" rel="noopener">Open Slide 2</a>
+          <div class="say">"Before I show you any bodies, I want you to hold three numbers in your head."</div>
+          <div class="do">Point at the 35% stat. Pause.</div>
+          <div class="say">"Thirty-five percent. That's how much of the weight lost on drugs like Ozempic can be muscle — not fat. Muscle you need for your bones, your balance, your blood sugar."</div>
+          <div class="do">Point at the 40% stat. Pause.</div>
+          <div class="say">"Forty percent. That's how much visceral fat — the dangerous fat around your organs — rises after menopause. Even when the scale doesn't move."</div>
+          <div class="do">Point at the 5× stat. Pause.</div>
+          <div class="say">"And five times. That's the difference in muscle loss between women on Ozempic who lift weights — and women who don't. Five times."</div>
+          <div class="say">"BMI measures mass. Body composition measures risk. GLP-1 drugs change the math — but only if you protect what matters. Let me show you what I mean."</div>
+          <div class="tip"><strong>If the 5× gets challenged:</strong> "It's direction, not precision. The comparison is trained vs. untrained women on GLP-1. The gap is large and consistent."</div>
+          <div class="check-item"><input type="checkbox" id="s2-1" /><label for="s2-1">Read the three stats with pauses between each</label></div>
+          <div class="check-item"><input type="checkbox" id="s2-2" /><label for="s2-2">Deliver the transition: "Let me show you what I mean."</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 3 — SECTION 01 INTRO
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-3">
+      <div class="card-head">
+        <span class="card-num">3</span>
+        <span class="card-title">Section 01 intro — three women, three BMIs</span>
+        <span class="card-time">~45 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-3" target="_blank" rel="noopener">Open Slide 3</a>
+          <div class="say">"Three women. Three BMIs. Woman A is BMI 21 — the 'normal weight' number. Woman B is BMI 24 — upper normal. Woman C is BMI 36 — obese."</div>
+          <div class="say">"If you had to pick the healthiest one, based on that number alone — who would you pick? Shout it out."</div>
+          <div class="do">Wait for the room. Most will say "Woman A." Some will hedge. Give them 5 seconds.</div>
+          <div class="say">"Most of you said Woman A. Now — let's see who's actually at highest risk."</div>
+          <div class="check-item"><input type="checkbox" id="s3-1" /><label for="s3-1">Read the three BMIs</label></div>
+          <div class="check-item"><input type="checkbox" id="s3-2" /><label for="s3-2">Ask the audience to guess. Wait for answers.</label></div>
+          <div class="check-item"><input type="checkbox" id="s3-3" /><label for="s3-3">Deliver the hook: "Let's see who's actually at highest risk."</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 4 — SIM 1 DEEP DIVE
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-4">
+      <div class="card-head">
+        <span class="card-num dash">4</span>
+        <span class="card-title">Sim 1 reveal — go to dashboard</span>
+        <span class="card-time">~2 min</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-4" target="_blank" rel="noopener">Open Slide 4</a>
+          <a class="slide-link dash" href="dashboard.html#module-1" target="_blank" rel="noopener">Open Dashboard · Section 01</a>
+          <div class="do">Tap "Open Dashboard · Section 01". You land in the dashboard on Sim 1.</div>
+          <div class="check-item"><input type="checkbox" id="s4-1" /><label for="s4-1">On dashboard · Section 01 — tap "Reveal Body Composition"</label></div>
+          <div class="check-item"><input type="checkbox" id="s4-2" /><label for="s4-2">Point at Woman A: "Low BMI, but look at the red inside."</label></div>
+          <div class="check-item"><input type="checkbox" id="s4-3" /><label for="s4-3">Tap Woman A → modal opens → red risk banner shows</label></div>
+          <div class="check-item"><input type="checkbox" id="s4-4" /><label for="s4-4">Point at her muscle (22) and visceral fat (78) meters</label></div>
+          <div class="check-item"><input type="checkbox" id="s4-5" /><label for="s4-5">Close modal. Tap Woman B → green banner, muscle 76, visceral 18</label></div>
+          <div class="say">"BMI 21 — the 'healthy' number — has the highest visceral fat and the lowest muscle of all three. BMI 24 — the 'overweight' number — has the strongest muscle and the least visceral fat. The scale told the wrong story."</div>
+          <div class="check-item"><input type="checkbox" id="s4-6" /><label for="s4-6">Close modal</label></div>
+          <div class="check-item"><input type="checkbox" id="s4-7" /><label for="s4-7">Tap "← Back to presentation" top-left → returns to slide 4</label></div>
+          <div class="check-item"><input type="checkbox" id="s4-8" /><label for="s4-8">Tap → to advance to slide 5</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 5 — SIM 1 CONCLUSION
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-5">
+      <div class="card-head">
+        <span class="card-num">5</span>
+        <span class="card-title">Sim 1 conclusion — BMI 21 is highest risk</span>
+        <span class="card-time">~30 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-5" target="_blank" rel="noopener">Open Slide 5</a>
+          <div class="say">"Woman A. BMI 21. The 'healthy' number. But the lowest muscle and the highest visceral fat of the three. That's the skinny-fat profile that BMI completely misses."</div>
+          <div class="do">Tap → to advance. Do not linger.</div>
+          <div class="check-item"><input type="checkbox" id="s5-1" /><label for="s5-1">Deliver the "skinny fat" line</label></div>
+          <div class="check-item"><input type="checkbox" id="s5-2" /><label for="s5-2">Tap →</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 6 — SECTION 02 INTRO
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-6">
+      <div class="card-head">
+        <span class="card-num">6</span>
+        <span class="card-title">Section 02 intro — Ozempic</span>
+        <span class="card-time">~20 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-6" target="_blank" rel="noopener">Open Slide 6</a>
+          <div class="say">"So we agree the scale lies. Now — what about the injection? If BMI can't tell us who's healthy, what can Ozempic tell us?"</div>
+          <div class="do">Tap → to advance.</div>
+          <div class="check-item"><input type="checkbox" id="s6-1" /><label for="s6-1">Deliver the transition</label></div>
+          <div class="check-item"><input type="checkbox" id="s6-2" /><label for="s6-2">Tap →</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 7 — SIM 2 DEEP DIVE
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-7">
+      <div class="card-head">
+        <span class="card-num dash">7</span>
+        <span class="card-title">Sim 2 — Ozempic red→green flip (the punchline)</span>
+        <span class="card-time">~2 min</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-7" target="_blank" rel="noopener">Open Slide 7</a>
+          <a class="slide-link dash" href="dashboard.html#module-2" target="_blank" rel="noopener">Open Dashboard · Section 02</a>
+          <div class="do">Tap "Open Dashboard · Section 02". Toggle OFF. Drag slider slowly 0 → 20%.</div>
+          <div class="check-item"><input type="checkbox" id="s7-1" /><label for="s7-1">Slider to 20% with toggle OFF</label></div>
+          <div class="check-item"><input type="checkbox" id="s7-2" /><label for="s7-2">Pause at red verdict. Muscle bar visibly dropped</label></div>
+          <div class="say">"Twenty percent lost. A third of it came from muscle. For a postmenopausal woman, that's frailty. And the scale — the scale looks great."</div>
+          <div class="do">Click the toggle ON. Same 20%. Do not touch the slider.</div>
+          <div class="check-item"><input type="checkbox" id="s7-3" /><label for="s7-3">Toggle ON — muscle bar jumps back, verdict turns GREEN</label></div>
+          <div class="check-item"><input type="checkbox" id="s7-4" /><label for="s7-4">Pause 3 seconds in silence on the green verdict</label></div>
+          <div class="say">"Same drug. Same 20%. Add protein and resistance training — and the muscle stays. The injection lowers the weight. What you lose is your choice. That lever is yours to pull."</div>
+          <div class="tip"><strong>This is the punchline.</strong> Don't narrate during the flip. Let the bar move and the color change do the work. Silence for 3 seconds.</div>
+          <div class="check-item"><input type="checkbox" id="s7-5" /><label for="s7-5">Tap "← Back to presentation" → returns to slide 7</label></div>
+          <div class="check-item"><input type="checkbox" id="s7-6" /><label for="s7-6">Tap → to advance</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 8 — SECTION 03 INTRO
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-8">
+      <div class="card-head">
+        <span class="card-num">8</span>
+        <span class="card-title">Section 03 intro — menopause</span>
+        <span class="card-time">~20 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-8" target="_blank" rel="noopener">Open Slide 8</a>
+          <div class="say">"So why does this matter more for you than for a 30-year-old? Menopause rewrites the map."</div>
+          <div class="do">Tap → to advance.</div>
+          <div class="check-item"><input type="checkbox" id="s8-1" /><label for="s8-1">Deliver transition</label></div>
+          <div class="check-item"><input type="checkbox" id="s8-2" /><label for="s8-2">Tap →</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 9 — SIM 3 DEEP DIVE
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-9">
+      <div class="card-head">
+        <span class="card-num dash">9</span>
+        <span class="card-title">Sim 3 — menopause slider, BMI stays constant</span>
+        <span class="card-time">~90 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-9" target="_blank" rel="noopener">Open Slide 9</a>
+          <a class="slide-link dash" href="dashboard.html#module-3" target="_blank" rel="noopener">Open Dashboard · Section 03</a>
+          <div class="do">Tap "Open Dashboard · Section 03". Find the menopause slider.</div>
+          <div class="say">"Watch the BMI badge on the left. Don't take your eyes off it."</div>
+          <div class="check-item"><input type="checkbox" id="s9-1" /><label for="s9-1">Point at BMI badge "24.0 unchanged"</label></div>
+          <div class="check-item"><input type="checkbox" id="s9-2" /><label for="s9-2">Drag age slider 35 → 60 (stop at 45, 52, 60)</label></div>
+          <div class="check-item"><input type="checkbox" id="s9-3" /><label for="s9-3">Hip bar shrinks · visceral bar grows · muscle shrinks · message changes</label></div>
+          <div class="check-item"><input type="checkbox" id="s9-4" /><label for="s9-4">Point at BMI badge again — still 24.0</label></div>
+          <div class="say">"Same weight. Same BMI. Her belly fat has more than quadrupled. Her muscle has dropped by nearly half. That's what estrogen loss does. And the scale never moved."</div>
+          <div class="do">Scroll to the timeline cards and callouts below the slider.</div>
+          <div class="say">"By the time a woman starts GLP-1 therapy at 55, she's already lost muscle from menopause. A drug that takes another third as muscle compounds a problem that was already there."</div>
+          <div class="check-item"><input type="checkbox" id="s9-5" /><label for="s9-5">Tap "← Back to presentation" → returns to slide 9</label></div>
+          <div class="check-item"><input type="checkbox" id="s9-6" /><label for="s9-6">Tap → to advance</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 10 — SECTION 04 INTRO
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-10">
+      <div class="card-head">
+        <span class="card-num">10</span>
+        <span class="card-title">Section 04 intro — takeaways</span>
+        <span class="card-time">~15 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-10" target="_blank" rel="noopener">Open Slide 10</a>
+          <div class="say">"Before I close — let's check what stuck. And then four sentences you can defend at dinner tonight."</div>
+          <div class="do">Tap → to advance.</div>
+          <div class="check-item"><input type="checkbox" id="s10-1" /><label for="s10-1">Deliver transition</label></div>
+          <div class="check-item"><input type="checkbox" id="s10-2" /><label for="s10-2">Tap →</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 11 — SIM 4 DEEP DIVE (QUIZ)
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-11">
+      <div class="card-head">
+        <span class="card-num dash">11</span>
+        <span class="card-title">Sim 4 — quiz, then "try again"</span>
+        <span class="card-time">~90 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-11" target="_blank" rel="noopener">Open Slide 11</a>
+          <a class="slide-link dash" href="dashboard.html#module-4" target="_blank" rel="noopener">Open Dashboard · Section 04</a>
+          <div class="say">"Quick check. Which of these three women should be most worried about her metabolic health? Woman A, B, C, or all equally?"</div>
+          <div class="do">Wait for the room's answer. Deliberately click the WRONG answer most people give — Woman B.</div>
+          <div class="check-item"><input type="checkbox" id="s11-1" /><label for="s11-1">Ask the quiz question</label></div>
+          <div class="check-item"><input type="checkbox" id="s11-2" /><label for="s11-2">Click Woman B (wrong) — red banner, "Not quite" text, Woman A reveals green</label></div>
+          <div class="say">"Not quite. Woman A — BMI 21 — is actually the highest risk. Low muscle, high visceral fat. The scale told the wrong story. Most of you picked B or C — and that's exactly the mistake this talk is about."</div>
+          <div class="do">Tap "Try again". Buttons reset. Now click Woman A (correct).</div>
+          <div class="check-item"><input type="checkbox" id="s11-3" /><label for="s11-3">Tap "Try again" — all four buttons active again</label></div>
+          <div class="check-item"><input type="checkbox" id="s11-4" /><label for="s11-4">Click Woman A (correct) — green banner</label></div>
+          <div class="say">"Woman A. BMI 21. The 'healthy' number. And now you know why."</div>
+          <div class="check-item"><input type="checkbox" id="s11-5" /><label for="s11-5">Tap "← Back to presentation" → returns to slide 11</label></div>
+          <div class="check-item"><input type="checkbox" id="s11-6" /><label for="s11-6">Tap → to advance</label></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════
+         SLIDE 12 — TAKEAWAYS + CLOSE
+         ═══════════════════════════════════════════════════ -->
+    <article class="card" id="s-12">
+      <div class="card-head">
+        <span class="card-num">12</span>
+        <span class="card-title">Takeaways + close</span>
+        <span class="card-time">~90 sec</span>
+        <span class="card-arrow">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="card-inner">
+          <a class="slide-link" href="index.html#slide-12" target="_blank" rel="noopener">Open Slide 12</a>
+          <div class="say">"Four sentences. Take them with you."</div>
+          <div class="do">Read each takeaway slowly. Pause between them. Let the audience read along.</div>
+          <div class="say">"One — BMI measures mass, not composition. A normal BMI can hide visceral fat and low muscle — the highest-risk profile for postmenopausal women."</div>
+          <div class="say">"Two — Where fat sits matters more than how much. Visceral fat is metabolically active and inflammatory. Subcutaneous fat is comparatively benign."</div>
+          <div class="say">"Three — Menopause redistributes fat to the abdomen and accelerates muscle loss. Risk rises even when the scale doesn't move."</div>
+          <div class="say">"Four — On GLP-1 therapy, protein and resistance training shifts the loss. Muscle share of weight lost drops from thirty-five percent to eight percent. That lever is yours to pull."</div>
+          <div class="do">Pause. Let the room settle.</div>
+          <div class="say">"One sentence to take home: the injection lowers the weight. What you lose is your choice. That lever is yours to pull. Thank you — I'll take questions."</div>
+          <div class="tip"><strong>If someone asks about 35%→8%:</strong> "That's the muscle share of weight lost — 35% without resistance training, 8% with. It's the lever, not a guarantee."</div>
+          <div class="check-item"><input type="checkbox" id="s12-1" /><label for="s12-1">Read all four takeaways with pauses</label></div>
+          <div class="check-item"><input type="checkbox" id="s12-2" /><label for="s12-2">Deliver the closing line — pause — "I'll take questions"</label></div>
         </div>
       </div>
     </article>
 
     <footer>
-      <p>Speaker Notes · The Scale Lies · Not for audience view</p>
+      <p>Speaker Notes · Not Linked Publicly · Presenter Only</p>
+      <p style="margin-top:.4rem;">URL: <code>scale-lies/speaker-notes.html</code> — only you know this link</p>
     </footer>
 
   </div>
@@ -537,7 +607,7 @@
       });
     });
 
-    // ── Progress tracking ─────────────────────────────────
+    // ── Progress tracking with localStorage ───────────────
     const checkboxes = document.querySelectorAll('.check-item input[type="checkbox"]');
     const progressFill = document.getElementById("progressFill");
     const progressCount = document.getElementById("progressCount");
@@ -546,41 +616,34 @@
       const total = checkboxes.length;
       const done = Array.from(checkboxes).filter((c) => c.checked).length;
       const pct = total ? (done / total) * 100 : 0;
-      progressFill.style.width = `${pct}%`;
-      progressCount.textContent = `${done} / ${total}`;
+      progressFill.style.width = pct + "%";
+      progressCount.textContent = done + " / " + total;
     }
 
     checkboxes.forEach((c) => {
       c.addEventListener("change", () => {
-        try {
-          localStorage.setItem("scaleLiesCheck_" + c.id, c.checked ? "1" : "0");
-        } catch (e) {}
+        try { localStorage.setItem("presNotes_" + c.id, c.checked ? "1" : "0"); } catch (e) {}
         updateProgress();
       });
-
-      // Restore from localStorage
       try {
-        if (localStorage.getItem("scaleLiesCheck_" + c.id) === "1") {
-          c.checked = true;
-        }
+        if (localStorage.getItem("presNotes_" + c.id) === "1") c.checked = true;
       } catch (e) {}
     });
 
-    // ── Reset all ─────────────────────────────────────────
     document.getElementById("resetAll").addEventListener("click", () => {
       if (!confirm("Reset all checkboxes?")) return;
       checkboxes.forEach((c) => {
         c.checked = false;
-        try { localStorage.removeItem("scaleLiesCheck_" + c.id); } catch (e) {}
+        try { localStorage.removeItem("presNotes_" + c.id); } catch (e) {}
       });
       updateProgress();
     });
 
-    // ── Open first card by default on first visit ─────────
+    // Auto-open first card on first visit
     try {
-      if (!localStorage.getItem("scaleLiesVisited")) {
-        document.getElementById("s-opening").classList.add("open");
-        localStorage.setItem("scaleLiesVisited", "1");
+      if (!localStorage.getItem("presNotesVisited")) {
+        document.getElementById("s-pre").classList.add("open");
+        localStorage.setItem("presNotesVisited", "1");
       }
     } catch (e) {}
 
