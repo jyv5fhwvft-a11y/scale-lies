@@ -8,28 +8,48 @@
   <link rel="stylesheet" href="style.css" />
 
   <!-- ═══════════════════════════════════════════════════════
-       BOOT SCRIPT — runs before body renders
-       Reads sessionStorage first, then ?from=, then defaults to 1
+       BOOT SCRIPT — runs synchronously before body renders
+       Detects source: from_notes, presentation slide, or default
        ═══════════════════════════════════════════════════════ -->
   <script>
     (function () {
-      var fromSlide = 1;
-      var source = "default";
+      var fromSlide = 0;
+      var cameFromNotes = false;
+      var source = "none";
 
-      // 1. sessionStorage — set by presentation.js on every slide change
+      // 0. Check sessionStorage for from_notes flag (survives section-nav)
       try {
-        var stored = sessionStorage.getItem("presLastSlide");
-        if (stored) {
-          var n = parseInt(stored, 10);
-          if (!isNaN(n) && n >= 1 && n <= 12) {
-            fromSlide = n;
-            source = "session";
-          }
+        if (sessionStorage.getItem("presFromNotes") === "1") {
+          cameFromNotes = true;
+          source = "from_notes_session";
         }
       } catch (e) {}
 
-      // 2. ?from=N in URL — fallback for shared links
-      if (source === "default") {
+      // 1. Check ?from_notes=1 in URL — overrides session flag
+      try {
+        var p0 = new URLSearchParams(window.location.search);
+        if (p0.get("from_notes") === "1") {
+          cameFromNotes = true;
+          source = "from_notes_url";
+        }
+      } catch (e) {}
+
+      // 2. sessionStorage.presLastSlide — slide number
+      if (!cameFromNotes) {
+        try {
+          var stored = sessionStorage.getItem("presLastSlide");
+          if (stored) {
+            var n = parseInt(stored, 10);
+            if (!isNaN(n) && n >= 1 && n <= 12) {
+              fromSlide = n;
+              source = "sessionStorage";
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 3. ?from=N in URL
+      if (!fromSlide) {
         try {
           var params = new URLSearchParams(window.location.search);
           var from = params.get("from");
@@ -37,32 +57,81 @@
             var n2 = parseInt(from, 10);
             if (!isNaN(n2) && n2 >= 1 && n2 <= 12) {
               fromSlide = n2;
-              source = "url";
+              if (source === "none") source = "url";
             }
           }
         } catch (e) {}
       }
 
+      // 4. document.referrer
+      if (!fromSlide) {
+        try {
+          if (document.referrer) {
+            var rm = document.referrer.match(/#slide-(\d+)/);
+            if (rm) {
+              var n3 = parseInt(rm[1], 10);
+              if (!isNaN(n3) && n3 >= 1 && n3 <= 12) {
+                fromSlide = n3;
+                if (source === "none") source = "referrer";
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 5. Default slide
+      if (!fromSlide) {
+        fromSlide = 4;
+        if (source === "none") source = "default";
+      }
+
       window.__FROM_SLIDE__ = fromSlide;
+      window.__FROM_NOTES__ = cameFromNotes;
       window.__FROM_SOURCE__ = source;
 
-      document.addEventListener("DOMContentLoaded", function () {
+      // Persist the from_notes flag
+      try { sessionStorage.setItem("presFromNotes", cameFromNotes ? "1" : "0"); } catch (e) {}
+      if (!cameFromNotes) {
+        try { sessionStorage.setItem("presLastSlide", String(fromSlide)); } catch (e) {}
+      }
+
+      // Rewrite back link
+      function applyBackLink() {
         var backLink = document.getElementById("backToPres");
-        if (backLink) {
+        if (!backLink) return false;
+
+        if (cameFromNotes) {
+          backLink.href = "speaker-notes.html";
+          backLink.title = "Back to speaker notes";
+          var labelN = backLink.querySelector(".btp-label");
+          if (labelN) labelN.textContent = "Back to speaker notes";
+        } else {
           backLink.href = "index.html#slide-" + fromSlide;
           backLink.title = "Back to presentation · slide " + fromSlide;
-          var label = backLink.querySelector(".btp-label");
-          if (label) {
-            label.textContent = "Back to slide " + fromSlide;
-          }
+          var labelP = backLink.querySelector(".btp-label");
+          if (labelP) labelP.textContent = "Back to slide " + fromSlide;
         }
+        return true;
+      }
 
+      applyBackLink();
+
+      document.addEventListener("DOMContentLoaded", function () {
+        applyBackLink();
+
+        // Preserve from_notes / from= in section nav
         var navLinks = document.querySelectorAll('.section-nav a[href^="#module-"]');
         navLinks.forEach(function (link) {
           var section = link.getAttribute("href");
-          link.setAttribute("href", "?from=" + fromSlide + section);
+          if (cameFromNotes) {
+            link.setAttribute("href", "?from_notes=1&from=" + fromSlide + section);
+          } else {
+            link.setAttribute("href", "?from=" + fromSlide + section);
+          }
         });
       });
+
+      window.addEventListener("load", applyBackLink);
     })();
   </script>
 
@@ -104,8 +173,8 @@
 </head>
 <body>
 
-  <a href="index.html#slide-1" class="back-to-presentation" id="backToPres">
-    <span class="btp-label">Back to presentation</span>
+  <a href="index.html#slide-4" class="back-to-presentation" id="backToPres">
+    <span class="btp-label">Back to slide 4</span>
   </a>
 
   <header class="hero">
