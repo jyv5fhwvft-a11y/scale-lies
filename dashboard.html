@@ -9,93 +9,113 @@
 
   <!-- ═══════════════════════════════════════════════════════
        BOOT SCRIPT — runs synchronously before body renders
-       Detects source: from_notes, presentation slide, or default
+       Priority order for detecting "where did we come from":
+       1. ?from_notes=1 in URL (explicit)
+       2. sessionStorage.presFromNotes (set by speaker-notes on click)
+       3. ?from=N in URL
+       4. sessionStorage.presLastSlide
+       5. document.referrer
+       6. default slide 4
        ═══════════════════════════════════════════════════════ -->
   <script>
     (function () {
       var fromSlide = 0;
       var cameFromNotes = false;
       var source = "none";
+      var urlFromNotes = false;
+      var urlFromSlide = 0;
 
-      // 0. Check sessionStorage for from_notes flag (survives section-nav)
-      try {
-        if (sessionStorage.getItem("presFromNotes") === "1") {
-          cameFromNotes = true;
-          source = "from_notes_session";
-        }
-      } catch (e) {}
-
-      // 1. Check ?from_notes=1 in URL — overrides session flag
+      // Parse URL params once
       try {
         var p0 = new URLSearchParams(window.location.search);
-        if (p0.get("from_notes") === "1") {
-          cameFromNotes = true;
-          source = "from_notes_url";
+        if (p0.get("from_notes") === "1") urlFromNotes = true;
+        var f = p0.get("from");
+        if (f) {
+          var nf = parseInt(f, 10);
+          if (!isNaN(nf) && nf >= 1 && nf <= 12) urlFromSlide = nf;
         }
       } catch (e) {}
 
-      // 2. sessionStorage.presLastSlide — slide number
+      // ── DECISION TREE ──────────────────────────────────
+
+      // Priority 1: explicit ?from_notes=1 in URL
+      if (urlFromNotes) {
+        cameFromNotes = true;
+        source = "from_notes_url";
+      }
+
+      // Priority 2: sessionStorage flag (set by speaker-notes on link click)
+      // This is the Firefox-iPad-safe channel — survives page navigation
       if (!cameFromNotes) {
         try {
-          var stored = sessionStorage.getItem("presLastSlide");
-          if (stored) {
-            var n = parseInt(stored, 10);
-            if (!isNaN(n) && n >= 1 && n <= 12) {
-              fromSlide = n;
-              source = "sessionStorage";
-            }
+          if (sessionStorage.getItem("presFromNotes") === "1") {
+            cameFromNotes = true;
+            source = "from_notes_session";
           }
         } catch (e) {}
       }
 
-      // 3. ?from=N in URL
-      if (!fromSlide) {
-        try {
-          var params = new URLSearchParams(window.location.search);
-          var from = params.get("from");
-          if (from) {
-            var n2 = parseInt(from, 10);
-            if (!isNaN(n2) && n2 >= 1 && n2 <= 12) {
-              fromSlide = n2;
-              if (source === "none") source = "url";
-            }
-          }
-        } catch (e) {}
-      }
+      // If from notes, no slide number needed
+      if (cameFromNotes) {
+        fromSlide = 4; // unused when cameFromNotes
+      } else {
+        // Priority 3: ?from=N in URL
+        if (urlFromSlide) {
+          fromSlide = urlFromSlide;
+          source = "url_from";
+        }
 
-      // 4. document.referrer
-      if (!fromSlide) {
-        try {
-          if (document.referrer) {
-            var rm = document.referrer.match(/#slide-(\d+)/);
-            if (rm) {
-              var n3 = parseInt(rm[1], 10);
-              if (!isNaN(n3) && n3 >= 1 && n3 <= 12) {
-                fromSlide = n3;
-                if (source === "none") source = "referrer";
+        // Priority 4: sessionStorage.presLastSlide
+        if (!fromSlide) {
+          try {
+            var stored = sessionStorage.getItem("presLastSlide");
+            if (stored) {
+              var n = parseInt(stored, 10);
+              if (!isNaN(n) && n >= 1 && n <= 12) {
+                fromSlide = n;
+                source = "session_slide";
               }
             }
-          }
-        } catch (e) {}
-      }
+          } catch (e) {}
+        }
 
-      // 5. Default slide
-      if (!fromSlide) {
-        fromSlide = 4;
-        if (source === "none") source = "default";
+        // Priority 5: referrer
+        if (!fromSlide) {
+          try {
+            if (document.referrer) {
+              var rm = document.referrer.match(/#slide-(\d+)/);
+              if (rm) {
+                var n3 = parseInt(rm[1], 10);
+                if (!isNaN(n3) && n3 >= 1 && n3 <= 12) {
+                  fromSlide = n3;
+                  source = "referrer";
+                }
+              }
+            }
+          } catch (e) {}
+        }
+
+        // Priority 6: default
+        if (!fromSlide) {
+          fromSlide = 4;
+          source = "default";
+        }
       }
 
       window.__FROM_SLIDE__ = fromSlide;
       window.__FROM_NOTES__ = cameFromNotes;
       window.__FROM_SOURCE__ = source;
 
-      // Persist the from_notes flag
-      try { sessionStorage.setItem("presFromNotes", cameFromNotes ? "1" : "0"); } catch (e) {}
-      if (!cameFromNotes) {
-        try { sessionStorage.setItem("presLastSlide", String(fromSlide)); } catch (e) {}
+      // ── PERSIST — only from explicit URL signals ──────
+      // Do NOT overwrite from sessionStorage-derived decisions
+      if (urlFromNotes) {
+        try { sessionStorage.setItem("presFromNotes", "1"); } catch (e) {}
+      } else if (urlFromSlide) {
+        try { sessionStorage.setItem("presFromNotes", "0"); } catch (e) {}
+        try { sessionStorage.setItem("presLastSlide", String(urlFromSlide)); } catch (e) {}
       }
 
-      // Rewrite back link
+      // ── APPLY BACK LINK ───────────────────────────────
       function applyBackLink() {
         var backLink = document.getElementById("backToPres");
         if (!backLink) return false;
@@ -119,12 +139,12 @@
       document.addEventListener("DOMContentLoaded", function () {
         applyBackLink();
 
-        // Preserve from_notes / from= in section nav
+        // Preserve context on section-nav clicks
         var navLinks = document.querySelectorAll('.section-nav a[href^="#module-"]');
         navLinks.forEach(function (link) {
           var section = link.getAttribute("href");
           if (cameFromNotes) {
-            link.setAttribute("href", "?from_notes=1&from=" + fromSlide + section);
+            link.setAttribute("href", "?from_notes=1" + section);
           } else {
             link.setAttribute("href", "?from=" + fromSlide + section);
           }
@@ -210,7 +230,6 @@
 
   <main>
 
-    <!-- MODULE 1 -->
     <section id="module-1" class="module">
       <div class="module-head">
         <span class="module-num">01</span>
@@ -243,7 +262,6 @@
       </section>
     </section>
 
-    <!-- MODULE 2 -->
     <section id="module-2" class="module">
       <div class="module-head">
         <span class="module-num">02</span>
@@ -305,7 +323,6 @@
       </p>
     </section>
 
-    <!-- MODULE 3 -->
     <section id="module-3" class="module">
       <div class="module-head">
         <span class="module-num">03</span>
@@ -412,7 +429,6 @@
       </p>
     </section>
 
-    <!-- MODULE 4 -->
     <section id="module-4" class="module">
       <div class="module-head">
         <span class="module-num">04</span>
