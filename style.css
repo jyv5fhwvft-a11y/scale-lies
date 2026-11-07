@@ -849,3 +849,24 @@ input[type="range"] {
 }
 .quiz-result.ok  { border-color: var(--ok);     color: var(--ok);     background: rgba(57,217,138,.1); }
 .quiz-result.bad { border-color: var(--danger); color: var(--danger); background: rgba(255,84,112,.1); }
+
+
+/* Quiz "Try again" reset button */
+.quiz-reset {
+  margin-top: 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: .6rem 1.2rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--dur-fast), color var(--dur-fast);
+}
+.quiz-reset:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
