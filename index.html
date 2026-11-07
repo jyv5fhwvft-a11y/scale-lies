@@ -163,6 +163,45 @@
         </p>
       </div>
 
+      <div class="menopause-slider" id="menopauseSlider">
+        <div class="ms-figure-wrap">
+          <svg id="msFigure" viewBox="0 0 200 320" role="img" aria-label="Fat distribution figure"></svg>
+          <div class="ms-bmi">
+            <span class="ms-bmi-label">BMI</span>
+            <span class="ms-bmi-val" id="msBmi">24.0</span>
+            <span class="ms-bmi-frozen">unchanged</span>
+          </div>
+        </div>
+        <div class="ms-controls">
+          <div class="ms-stage-label" id="msStage">Premenopause</div>
+          <label for="msSlider" class="ms-slider-label">Age</label>
+          <input type="range" id="msSlider" min="0" max="3" step="1" value="0" />
+          <div class="ms-age-row">
+            <span>35</span><span>45</span><span>52</span><span>60</span>
+          </div>
+          <div class="ms-meters">
+            <div class="ms-meter-row">
+              <span>Hip / thigh fat</span>
+              <div class="ms-track"><div class="ms-fill hip" id="msHip"></div></div>
+              <span class="ms-val" id="msHipVal">78</span>
+            </div>
+            <div class="ms-meter-row">
+              <span>Visceral fat</span>
+              <div class="ms-track"><div class="ms-fill visceral" id="msVisceral"></div></div>
+              <span class="ms-val" id="msVisceralVal">18</span>
+            </div>
+            <div class="ms-meter-row">
+              <span>Muscle</span>
+              <div class="ms-track"><div class="ms-fill muscle" id="msMuscle"></div></div>
+              <span class="ms-val" id="msMuscleVal">72</span>
+            </div>
+          </div>
+          <div class="ms-message" id="msMessage">
+            Estrogen protects. Fat sits on hips and thighs — metabolically safer. Muscle stable.
+          </div>
+        </div>
+      </div>
+
       <!-- Timeline -->
       <div class="timeline" id="timeline">
         <div class="tl-step" data-step="1">
@@ -233,6 +272,14 @@
         <span class="module-num">04</span>
         <h2>What to Take With You</h2>
         <p class="module-sub">Four sentences you can defend.</p>
+      </div>
+
+      <div class="quiz" id="quiz">
+        <p class="quiz-q" id="quizQuestion">
+          Who should be most worried about her metabolic health?
+        </p>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-result" id="quizResult" hidden></div>
       </div>
 
       <ol class="takeaways">
