@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    THE SCALE LIES — Unified Dashboard Script
-   Modules: 1 (BMI reveal) · 2 (Ozempic sim) · 3 (timeline) · 4 (static)
+   Modules: 1 (BMI reveal) · 2 (Ozempic sim) · 3 (menopause + slider) · 4 (quiz)
    Data is inlined so there is nothing to fetch — safe for GitHub Pages.
    ═══════════════════════════════════════════════════════════ */
 
@@ -53,6 +53,66 @@ const OZEMPIC = {
   baseline: { weight: 82, fatMass: 36, muscleMass: 26 },
   withoutProtection: { fatShare: 62, muscleShare: 33, otherShare: 5 },
   withProtection:    { fatShare: 90, muscleShare: 8,  otherShare: 2 }
+};
+
+/* ── MODULE 3 SLIDER DATA ────────────────────────────────
+   Four age stops showing fat redistribution across menopause.
+   BMI is held CONSTANT at 24.0 — that's the point: the scale
+   doesn't move while composition changes dramatically.
+   ───────────────────────────────────────────────────────── */
+const MENOPAUSE_SLIDER = {
+  stops: [
+    {
+      age: 35,
+      label: "Premenopause",
+      bmi: 24.0,
+      hipFat: 78,
+      visceralFat: 18,
+      muscle: 72,
+      message: "Estrogen protects. Fat sits on hips and thighs — metabolically safer. Muscle stable."
+    },
+    {
+      age: 45,
+      label: "Perimenopause",
+      bmi: 24.0,
+      hipFat: 60,
+      visceralFat: 40,
+      muscle: 62,
+      message: "Estrogen fluctuates. Fat is migrating from hips to belly. Muscle declines ~1%/year."
+    },
+    {
+      age: 52,
+      label: "Postmenopause",
+      bmi: 24.0,
+      hipFat: 42,
+      visceralFat: 72,
+      muscle: 50,
+      message: "Visceral fat rises 25–40%. Insulin resistance climbs. The scale still doesn't move."
+    },
+    {
+      age: 60,
+      label: "Late postmenopause",
+      bmi: 24.0,
+      hipFat: 34,
+      visceralFat: 84,
+      muscle: 42,
+      message: "Deep belly fat dominates. Muscle loss accelerates. Same BMI — very different body."
+    }
+  ]
+};
+
+/* ── MODULE 4 QUIZ DATA ──────────────────────────────── */
+const QUIZ = {
+  question: "Who should be most worried about her metabolic health?",
+  options: [
+    { id: "w1",  label: "Woman A",     bmi: 21 },
+    { id: "w2",  label: "Woman B",     bmi: 24 },
+    { id: "w3",  label: "Woman C",     bmi: 36 },
+    { id: "all", label: "All equally", bmi: "—" }
+  ],
+  correct: "w1",
+  correctText: "Woman A. BMI 21 — the 'healthy' number. But the highest visceral fat and lowest muscle of the three. That's the point.",
+  incorrectText: "Not quite. Woman A — BMI 21 — is actually the highest risk. Low muscle, high visceral fat. The scale told the wrong story."
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -293,9 +353,6 @@ function renderModule2() {
   /* CORRECT MATH
      lossPct = % of TOTAL starting body weight lost (0-20%).
      Split shares are % of the weight lost.
-     fatLostKg    = totalLostKg * fatShare/100
-     muscleLostKg = totalLostKg * muscleShare/100
-     → convert to % of the component's own starting mass for the meters.
   */
   const totalLostKg  = base.weight * (lossPct / 100);
   const fatLostKg    = totalLostKg * (split.fatShare / 100);
@@ -323,20 +380,17 @@ function updateSimFigure(lossPct, fatLostKg, fatNow, muscleLostKg, muscleNow) {
 
   const base = OZEMPIC.baseline;
 
-  // Whole body shrinks subtly with total weight loss (max ~12% at 20%)
   const scale = 1 - lossPct * 0.006;
   bodyGroup.setAttribute(
     "transform",
     `translate(120 180) scale(${scale}) translate(-120 -180)`
   );
 
-  // Fat ring scales by remaining fat fraction
-  const fatFrac = fatNow / base.fatMass; // 0..1
+  const fatFrac = fatNow / base.fatMass;
   fatRing.setAttribute("rx", 80 * fatFrac);
   fatRing.setAttribute("ry", 110 * fatFrac);
   fatRing.setAttribute("opacity", 0.15 + 0.4 * fatFrac);
 
-  // Muscle core scales by remaining muscle fraction
   const muscleFrac = muscleNow / base.muscleMass;
   muscleCore.setAttribute("rx", 46 * muscleFrac);
   muscleCore.setAttribute("ry", 80 * muscleFrac);
@@ -413,6 +467,127 @@ function initModule3() {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   MODULE 3 SLIDER — Menopause age slider (new)
+   ═══════════════════════════════════════════════════════════ */
+function initModule3Slider() {
+  const wrap = document.getElementById("menopauseSlider");
+  if (!wrap) return;
+
+  const slider    = document.getElementById("msSlider");
+  const stage     = document.getElementById("msStage");
+  const bmiEl     = document.getElementById("msBmi");
+  const hipEl     = document.getElementById("msHip");
+  const hipValEl  = document.getElementById("msHipVal");
+  const visEl     = document.getElementById("msVisceral");
+  const visValEl  = document.getElementById("msVisceralVal");
+  const musEl     = document.getElementById("msMuscle");
+  const musValEl  = document.getElementById("msMuscleVal");
+  const msgEl     = document.getElementById("msMessage");
+  const svg       = document.getElementById("msFigure");
+
+  // Draw the figure once
+  svg.innerHTML = `
+    <g id="msBody">
+      <ellipse id="msHipFat" cx="100" cy="230" rx="56" ry="46" fill="var(--fat)" opacity="0.7"/>
+      <path d="M100 34
+               c18 0 30 12 30 30
+               c0 16 -10 28 -16 34
+               c14 4 26 14 30 30
+               l10 50
+               c3 14 -4 24 -18 24
+               l-6 0
+               l-4 70
+               c0 6 -4 10 -10 10
+               l-10 0
+               l0 -60
+               l-8 0
+               l0 60
+               l-10 0
+               c-6 0 -10 -4 -10 -10
+               l-4 -70
+               l-6 0
+               c-14 0 -21 -10 -18 -24
+               l10 -50
+               c4 -16 16 -26 30 -30
+               c-6 -6 -16 -18 -16 -34
+               c0 -18 12 -30 30 -30 z"
+            fill="#5d6b9e"/>
+      <ellipse id="msVisBlob" cx="100" cy="170" rx="22" ry="22" fill="var(--visceral)" opacity="0.9"/>
+      <ellipse id="msMuscleCore" cx="100" cy="160" rx="38" ry="60" fill="var(--muscle)" opacity="0.35"/>
+    </g>
+  `;
+
+  function render() {
+    const i = Number(slider.value);
+    const s = MENOPAUSE_SLIDER.stops[i];
+
+    stage.textContent  = s.label;
+    bmiEl.textContent  = s.bmi.toFixed(1);
+
+    hipEl.style.width    = `${s.hipFat}%`;
+    hipValEl.textContent = s.hipFat;
+    visEl.style.width    = `${s.visceralFat}%`;
+    visValEl.textContent = s.visceralFat;
+    musEl.style.width    = `${s.muscle}%`;
+    musValEl.textContent = s.muscle;
+    msgEl.textContent    = s.message;
+
+    // SVG body reactions
+    const hipFatEl = document.getElementById("msHipFat");
+    hipFatEl.setAttribute("rx", 30 + s.hipFat * 0.34);
+    hipFatEl.setAttribute("ry", 20 + s.hipFat * 0.32);
+
+    const visBlobEl = document.getElementById("msVisBlob");
+    visBlobEl.setAttribute("rx", 10 + s.visceralFat * 0.28);
+    visBlobEl.setAttribute("ry", 10 + s.visceralFat * 0.28);
+
+    const muscleEl = document.getElementById("msMuscleCore");
+    muscleEl.setAttribute("opacity", (s.muscle / 100) * 0.6);
+  }
+
+  slider.addEventListener("input", render);
+  render();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODULE 4 QUIZ — Active recall (new)
+   ═══════════════════════════════════════════════════════════ */
+function initModule4Quiz() {
+  const wrap = document.getElementById("quiz");
+  if (!wrap) return;
+
+  const optionsWrap = document.getElementById("quizOptions");
+  const resultEl    = document.getElementById("quizResult");
+  const questionEl  = document.getElementById("quizQuestion");
+
+  questionEl.textContent = QUIZ.question;
+
+  QUIZ.options.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.className = "quiz-btn";
+    btn.dataset.id = opt.id;
+    btn.innerHTML = `${opt.label}<span class="q-bmi">BMI ${opt.bmi}</span>`;
+    btn.addEventListener("click", () => handleAnswer(opt.id, btn));
+    optionsWrap.appendChild(btn);
+  });
+
+  function handleAnswer(id, btn) {
+    const allBtns = optionsWrap.querySelectorAll(".quiz-btn");
+    const isCorrect = id === QUIZ.correct;
+
+    allBtns.forEach((b) => {
+      b.disabled = true;
+      if (b.dataset.id === QUIZ.correct) b.classList.add("correct");
+      if (b === btn && !isCorrect) b.classList.add("wrong");
+    });
+
+    resultEl.hidden = false;
+    resultEl.className = "quiz-result " + (isCorrect ? "ok" : "bad");
+    resultEl.textContent = isCorrect ? QUIZ.correctText : QUIZ.incorrectText;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
    HERO STAT COUNTERS + STICKY NAV ACTIVE STATE
    ═══════════════════════════════════════════════════════════ */
 function initHeroCounters() {
@@ -469,6 +644,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initModule1();
   initModule2();
   initModule3();
+  initModule3Slider();
+  initModule4Quiz();
   initHeroCounters();
   initNav();
 });
