@@ -6,8 +6,42 @@
   <title>The Scale Lies — Weight Loss, Body Composition & Menopause</title>
   <meta name="description" content="An interactive dashboard on why BMI misleads, what GLP-1 weight loss actually takes off, and how menopause rewrites body composition." />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Back-to-presentation floating button — only on dashboard */
+    .back-to-presentation {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 200;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(12,16,34,.88);
+      border: 1px solid var(--border, #2c3454);
+      color: var(--text, #eef1f8);
+      text-decoration: none;
+      padding: .55rem 1rem;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: border-color .18s, background .18s;
+    }
+    .back-to-presentation:hover {
+      border-color: var(--accent, #7c5cff);
+      background: rgba(124,92,255,.12);
+    }
+    @media print { .back-to-presentation { display: none; } }
+  </style>
 </head>
 <body>
+
+  <!-- Back to presentation (returns to slide user left from) -->
+  <a href="index.html#slide-1" class="back-to-presentation" id="backToPres">
+    ← Back to presentation
+  </a>
 
   <!-- ══════════════════════════════════════════════════════════
        HERO
@@ -71,7 +105,6 @@
         Press <strong>Reveal</strong> to see what the scale can't show, then tap a woman to inspect her risk profile.
       </p>
 
-      <!-- Modal for inspecting one subject -->
       <section class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-card">
           <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
@@ -97,7 +130,6 @@
       </div>
 
       <div class="stage">
-        <!-- Live figure -->
         <div class="figure-wrap">
           <svg id="figure" viewBox="0 0 240 360" role="img" aria-label="Body composition figure"></svg>
           <div class="figure-caption" id="figureCaption">
@@ -105,7 +137,6 @@
           </div>
         </div>
 
-        <!-- Controls + meters -->
         <div class="panel">
           <div class="toggle-row">
             <label class="switch">
@@ -202,7 +233,6 @@
         </div>
       </div>
 
-      <!-- Timeline -->
       <div class="timeline" id="timeline">
         <div class="tl-step" data-step="1">
           <div class="tl-dot"></div>
@@ -232,7 +262,6 @@
         </div>
       </div>
 
-      <!-- Body-map callout -->
       <div class="callout-grid">
         <div class="callout">
           <div class="callout-icon">⚠</div>
@@ -316,5 +345,23 @@
   </footer>
 
   <script src="script.js"></script>
+
+  <script>
+    // Update "Back to presentation" link based on which slide the user came from.
+    // Uses document.referrer if available, falls back to slide 1.
+    (function () {
+      var backLink = document.getElementById("backToPres");
+      if (!backLink) return;
+      var fromSlide = 1;
+      try {
+        if (document.referrer) {
+          var ref = new URL(document.referrer);
+          var rm = ref.hash.match(/^#slide-(\d+)$/);
+          if (rm) fromSlide = parseInt(rm[1], 10);
+        }
+      } catch (e) {}
+      backLink.href = "index.html#slide-" + fromSlide;
+    })();
+  </script>
 </body>
 </html>
