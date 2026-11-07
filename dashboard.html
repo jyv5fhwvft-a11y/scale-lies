@@ -6,8 +6,56 @@
   <title>The Scale Lies — Weight Loss, Body Composition & Menopause</title>
   <meta name="description" content="An interactive dashboard on why BMI misleads, what GLP-1 weight loss actually takes off, and how menopause rewrites body composition." />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- ═══════════════════════════════════════════════════════
+       INLINE BOOT SCRIPT — runs BEFORE body renders
+       Reads ?from=N and rewrites the back link immediately
+       ═══════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      // Determine which slide the user came from
+      var fromSlide = 1;
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var from = params.get("from");
+        if (from) {
+          var n = parseInt(from, 10);
+          if (!isNaN(n) && n >= 1 && n <= 12) fromSlide = n;
+        }
+      } catch (e) {}
+
+      // Store globally for later use
+      window.__FROM_SLIDE__ = fromSlide;
+
+      // Rewrite all internal section-nav links to preserve ?from=N
+      document.addEventListener("DOMContentLoaded", function () {
+        // 1. Update the back link
+        var backLink = document.getElementById("backToPres");
+        if (backLink) {
+          backLink.href = "index.html#slide-" + fromSlide;
+          backLink.title = "Back to presentation · slide " + fromSlide;
+          // Update visible label so you can SEE which slide it goes to
+          var label = backLink.querySelector(".btp-label");
+          if (label) {
+            label.textContent = "Back to slide " + fromSlide;
+          }
+        }
+
+        // 2. Preserve ?from=N when clicking section nav anchors
+        var navLinks = document.querySelectorAll('.section-nav a[href^="#module-"]');
+        navLinks.forEach(function (link) {
+          var section = link.getAttribute("href");
+          link.setAttribute("href", "?from=" + fromSlide + section);
+        });
+
+        // 3. Preserve ?from=N when clicking any in-dashboard "Back to top" style link
+        // (extend if you add any)
+      });
+    })();
+  </script>
+
   <style>
-    /* Back-to-presentation floating button — only on dashboard */
+    /* Back-to-presentation floating button */
     .back-to-presentation {
       position: fixed;
       top: 1rem;
@@ -16,31 +64,38 @@
       display: inline-flex;
       align-items: center;
       gap: .4rem;
-      background: rgba(12,16,34,.88);
+      background: rgba(12,16,34,.92);
       border: 1px solid var(--border, #2c3454);
       color: var(--text, #eef1f8);
       text-decoration: none;
       padding: .55rem 1rem;
       border-radius: 999px;
       font-size: .82rem;
-      font-weight: 600;
+      font-weight: 700;
       font-family: inherit;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      transition: border-color .18s, background .18s;
+      transition: border-color .18s, background .18s, transform .12s;
+      box-shadow: 0 6px 20px rgba(0,0,0,.35);
     }
     .back-to-presentation:hover {
       border-color: var(--accent, #7c5cff);
-      background: rgba(124,92,255,.12);
+      background: rgba(124,92,255,.15);
+    }
+    .back-to-presentation:active { transform: scale(.97); }
+    .back-to-presentation::before {
+      content: "←";
+      font-size: 1rem;
+      line-height: 1;
     }
     @media print { .back-to-presentation { display: none; } }
   </style>
 </head>
 <body>
 
-  <!-- Back to presentation (returns to slide user left from) -->
+  <!-- Back to presentation — href gets rewritten by the script above -->
   <a href="index.html#slide-1" class="back-to-presentation" id="backToPres">
-    ← Back to presentation
+    <span class="btp-label">Back to presentation</span>
   </a>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -82,9 +137,7 @@
 
   <main>
 
-    <!-- ════════════════════════════════════════════════════════
-         MODULE 1 — THE BMI MISCONCEPTION
-    ═════════════════════════════════════════════════════════ -->
+    <!-- MODULE 1 -->
     <section id="module-1" class="module">
       <div class="module-head">
         <span class="module-num">01</span>
@@ -117,9 +170,7 @@
       </section>
     </section>
 
-    <!-- ════════════════════════════════════════════════════════
-         MODULE 2 — OZEMPIC REALITY CHECK
-    ═════════════════════════════════════════════════════════ -->
+    <!-- MODULE 2 -->
     <section id="module-2" class="module">
       <div class="module-head">
         <span class="module-num">02</span>
@@ -181,9 +232,7 @@
       </p>
     </section>
 
-    <!-- ════════════════════════════════════════════════════════
-         MODULE 3 — MENOPAUSE & VISCERAL FAT
-    ═════════════════════════════════════════════════════════ -->
+    <!-- MODULE 3 -->
     <section id="module-3" class="module">
       <div class="module-head">
         <span class="module-num">03</span>
@@ -242,7 +291,6 @@
             <p>Fat stores preferentially on hips and thighs (subcutaneous), which is metabolically less harmful. Muscle mass is relatively stable.</p>
           </div>
         </div>
-
         <div class="tl-step" data-step="2">
           <div class="tl-dot"></div>
           <div class="tl-card">
@@ -251,7 +299,6 @@
             <p>Estrogen fluctuates. Fat begins shifting from hips to the abdomen. Muscle declines ~1% per year. Total weight may not change.</p>
           </div>
         </div>
-
         <div class="tl-step" data-step="3">
           <div class="tl-dot"></div>
           <div class="tl-card">
@@ -274,7 +321,6 @@
             </p>
           </div>
         </div>
-
         <div class="callout">
           <div class="callout-icon">📏</div>
           <div>
@@ -293,9 +339,7 @@
       </p>
     </section>
 
-    <!-- ════════════════════════════════════════════════════════
-         MODULE 4 — TAKEAWAYS + REFERENCES
-    ═════════════════════════════════════════════════════════ -->
+    <!-- MODULE 4 -->
     <section id="module-4" class="module">
       <div class="module-head">
         <span class="module-num">04</span>
@@ -346,22 +390,5 @@
 
   <script src="script.js"></script>
 
-  <script>
-    // Update "Back to presentation" link based on which slide the user came from.
-    // Uses document.referrer if available, falls back to slide 1.
-    (function () {
-      var backLink = document.getElementById("backToPres");
-      if (!backLink) return;
-      var fromSlide = 1;
-      try {
-        if (document.referrer) {
-          var ref = new URL(document.referrer);
-          var rm = ref.hash.match(/^#slide-(\d+)$/);
-          if (rm) fromSlide = parseInt(rm[1], 10);
-        }
-      } catch (e) {}
-      backLink.href = "index.html#slide-" + fromSlide;
-    })();
-  </script>
 </body>
 </html>
