@@ -8,54 +8,65 @@
   <link rel="stylesheet" href="style.css" />
 
   <!-- ═══════════════════════════════════════════════════════
-       INLINE BOOT SCRIPT — runs BEFORE body renders
-       Reads ?from=N and rewrites the back link immediately
+       BOOT SCRIPT — runs before body renders
+       Reads sessionStorage first, then ?from=, then defaults to 1
        ═══════════════════════════════════════════════════════ -->
   <script>
     (function () {
-      // Determine which slide the user came from
       var fromSlide = 1;
+      var source = "default";
+
+      // 1. sessionStorage — set by presentation.js on every slide change
       try {
-        var params = new URLSearchParams(window.location.search);
-        var from = params.get("from");
-        if (from) {
-          var n = parseInt(from, 10);
-          if (!isNaN(n) && n >= 1 && n <= 12) fromSlide = n;
+        var stored = sessionStorage.getItem("presLastSlide");
+        if (stored) {
+          var n = parseInt(stored, 10);
+          if (!isNaN(n) && n >= 1 && n <= 12) {
+            fromSlide = n;
+            source = "session";
+          }
         }
       } catch (e) {}
 
-      // Store globally for later use
-      window.__FROM_SLIDE__ = fromSlide;
+      // 2. ?from=N in URL — fallback for shared links
+      if (source === "default") {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var from = params.get("from");
+          if (from) {
+            var n2 = parseInt(from, 10);
+            if (!isNaN(n2) && n2 >= 1 && n2 <= 12) {
+              fromSlide = n2;
+              source = "url";
+            }
+          }
+        } catch (e) {}
+      }
 
-      // Rewrite all internal section-nav links to preserve ?from=N
+      window.__FROM_SLIDE__ = fromSlide;
+      window.__FROM_SOURCE__ = source;
+
       document.addEventListener("DOMContentLoaded", function () {
-        // 1. Update the back link
         var backLink = document.getElementById("backToPres");
         if (backLink) {
           backLink.href = "index.html#slide-" + fromSlide;
           backLink.title = "Back to presentation · slide " + fromSlide;
-          // Update visible label so you can SEE which slide it goes to
           var label = backLink.querySelector(".btp-label");
           if (label) {
             label.textContent = "Back to slide " + fromSlide;
           }
         }
 
-        // 2. Preserve ?from=N when clicking section nav anchors
         var navLinks = document.querySelectorAll('.section-nav a[href^="#module-"]');
         navLinks.forEach(function (link) {
           var section = link.getAttribute("href");
           link.setAttribute("href", "?from=" + fromSlide + section);
         });
-
-        // 3. Preserve ?from=N when clicking any in-dashboard "Back to top" style link
-        // (extend if you add any)
       });
     })();
   </script>
 
   <style>
-    /* Back-to-presentation floating button */
     .back-to-presentation {
       position: fixed;
       top: 1rem;
@@ -93,14 +104,10 @@
 </head>
 <body>
 
-  <!-- Back to presentation — href gets rewritten by the script above -->
   <a href="index.html#slide-1" class="back-to-presentation" id="backToPres">
     <span class="btp-label">Back to presentation</span>
   </a>
 
-  <!-- ══════════════════════════════════════════════════════════
-       HERO
-  ═══════════════════════════════════════════════════════════ -->
   <header class="hero">
     <p class="eyebrow">An interactive evidence dashboard</p>
     <h1>The Scale Lies</h1>
@@ -125,9 +132,6 @@
     </div>
   </header>
 
-  <!-- ══════════════════════════════════════════════════════════
-       SECTION NAV
-  ═══════════════════════════════════════════════════════════ -->
   <nav class="section-nav" aria-label="Section navigation">
     <a href="#module-1" class="nav-link active">01 · BMI Myth</a>
     <a href="#module-2" class="nav-link">02 · Ozempic Reality</a>
