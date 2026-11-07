@@ -1,0 +1,20 @@
+"menopauseSlider": {
+    "ages": [
+      { "age": 35, "label": "Premenopause", "bmi": 24.0, "hipFat": 78, "visceralFat": 18, "muscle": 72, "message": "Estrogen protects. Fat sits on hips and thighs — metabolically safer. Muscle stable." },
+      { "age": 45, "label": "Perimenopause", "bmi": 24.0, "hipFat": 60, "visceralFat": 40, "muscle": 62, "message": "Estrogen fluctuates. Fat is migrating from hips to belly. Muscle declines ~1%/year." },
+      { "age": 52, "label": "Postmenopause", "bmi": 24.0, "hipFat": 42, "visceralFat": 72, "muscle": 50, "message": "Visceral fat rises 25–40%. Insulin resistance climbs. The scale still doesn't move." },
+      { "age": 60, "label": "Late postmenopause", "bmi": 24.0, "hipFat": 34, "visceralFat": 84, "muscle": 42, "message": "Deep belly fat dominates. Muscle loss accelerates. Same BMI — very different body." }
+    ]
+  },
+  "quiz": {
+    "question": "Who should be most worried about her metabolic health?",
+    "options": [
+      { "id": "w1", "label": "Woman A", "bmi": 21 },
+      { "id": "w2", "label": "Woman B", "bmi": 24 },
+      { "id": "w3", "label": "Woman C", "bmi": 30 },
+      { "id": "all", "label": "All equally" }
+    ],
+    "correct": "w1",
+    "correctText": "Woman A. BMI 21 — the 'healthy' number. But the highest visceral fat and lowest muscle of the three. That's the point.",
+    "incorrectText": "Not quite. Woman A — BMI 21 — is actually the highest risk. Low muscle, high visceral fat. The scale told the wrong story."
+  }
