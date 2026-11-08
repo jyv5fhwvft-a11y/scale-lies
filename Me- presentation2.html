@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Thin, Young, and Healthy? (Interactive CME)</title>
+  <style>
+    :root {
+      --bg-dark: #080c14;
+      --bg-panel: #121826;
+      --bg-panel-light: #1c2436;
+      --text-main: #f0f4f8;
+      --text-muted: #94a3b8;
+      --accent-primary: #00e5ff;
+      --accent-secondary: #3b82f6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #2a364f;
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "SF Mono", "Courier New", Courier, monospace;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-main);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    /* ── Presentation Framework ──────────────────────── */
+    .deck { position: relative; width: 100vw; height: 100vh; }
+    
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 4rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      transition: opacity var(--transition), transform var(--transition), visibility 0s var(--transition);
+      overflow-y: auto;
+    }
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition: opacity var(--transition), transform var(--transition), visibility 0s 0s;
+    }
+    .slide.prev { transform: translateX(-40px); }
+
+    .slide-inner { max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    /* ── Typography ─────────────────────────────────── */
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.75rem;
+      color: var(--accent-primary);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .eyebrow::before { content: ""; display: block; width: 24px; height: 2px; background: var(--accent-primary); }
+
+    h1.title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    h2.slide-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    p.lead {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 800px;
+      margin-bottom: 2rem;
+    }
+
+    .highlight { color: var(--accent-primary); font-weight: 700; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .warning { color: var(--warning); font-weight: 700; }
+    .success { color: var(--success); font-weight: 700; }
+
+    /* ── Layout Grids ────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .slide { padding: 2rem 1.5rem; }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .panel:hover { border-color: var(--accent-secondary); }
+    .panel h3 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text-main); }
+    .panel p, .panel ul { font-size: 0.95rem; color: var(--text-muted); }
+    .panel ul { padding-left: 1.2rem; }
+    .panel li { margin-bottom: 0.5rem; }
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn {
+      background: var(--accent-primary);
+      color: var(--bg-dark);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; transform: scale(1.02); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover { border-color: var(--accent-primary); }
+
+    /* ── SIMULATION 1: THE BODY COMPOSITION SCANNER ──── */
+    .body-scanner {
+      position: relative;
+      width: 200px;
+      height: 350px;
+      margin: 0 auto;
+      background: var(--bg-panel-light);
+      border-radius: 100px 100px 20px 20px;
+      border: 2px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .body-scanner.scanning { border-color: var(--accent-primary); box-shadow: 0 0 30px rgba(0,229,255,0.3); }
+    
+    /* Body parts */
+    .organ-muscle, .organ-visceral, .organ-subcut {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      transition: all 0.8s ease;
+    }
+    .organ-muscle { background: rgba(59, 130, 246, 0.6); top: 30%; width: 120px; height: 150px; border-radius: 40%; }
+    .organ-visceral { background: rgba(239, 68, 68, 0.8); top: 40%; width: 80px; height: 80px; }
+    .organ-subcut { background: rgba(245, 158, 11, 0.4); top: 35%; width: 160px; height: 180px; border-radius: 45%; z-index: -1; }
+
+    /* The scan line animation */
+    .scan-line {
+      position: absolute;
+      top: -10%; left: 0; width: 100%; height: 4px;
+      background: var(--accent-primary);
+      box-shadow: 0 0 20px var(--accent-primary);
+      opacity: 0;
+      z-index: 10;
+    }
+    .body-scanner.scanning .scan-line {
+      animation: scan 2.5s linear infinite;
+      opacity: 1;
+    }
+    @keyframes scan {
+      0% { top: -5%; }
+      100% { top: 105%; }
+    }
+
+    /* ── SIMULATION 2: THE MUSCLE LOSS CALCULATOR ───── */
+    .calculator-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+    }
+    .calc-readout {
+      font-family: var(--font-mono);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+      margin: 1rem 0;
+    }
+    .calc-bar-container {
+      width: 100%;
+      height: 24px;
+      background: var(--bg-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+      display: flex;
+      border: 1px solid var(--border);
+    }
+    .calc-bar-muscle { height: 100%; background: var(--success); transition: width 0.3s; }
+    .calc-bar-fat { height: 100%; background: var(--warning); transition: width 0.3s; }
+    .calc-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ── SIMULATION 3: THE ELIGIBILITY FLOWCHART ────── */
+    .flowchart {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .flow-node {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      padding: 1rem 2rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 250px;
+    }
+    .flow-node:hover { border-color: var(--accent-primary); background: var(--bg-panel-light); }
+    .flow-node.active { background: var(--accent-primary); color: var(--bg-dark); font-weight: 700; }
+    .flow-arrow { color: var(--text-muted); font-size: 1.5rem; }
+    .flow-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    /* ── Nav Bar ─────────────────────────────────────── */
+    .nav-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(8, 12, 20, 0.9);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    .nav-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      font-size: 1.2rem; cursor: pointer; padding: 0.5rem;
+      transition: color 0.2s;
+    }
+    .nav-btn:hover { color: var(--accent-primary); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .nav-dots { display: flex; gap: 0.5rem; }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); cursor: pointer; border: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-dot.active { background: var(--accent-primary); transform: scale(1.3); }
+    .nav-count { color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono); }
+
+    .title-slide { text-align: center; align-items: center; }
+    .title-slide .subtitle { font-size: 1.2rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2rem; }
+    
+  </style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: TITLE -->
+  <section class="slide title-slide active" data-slide="0">
+    <div class="slide-inner">
+      <p class="eyebrow">Interactive CME · 25 Minutes</p>
+      <h1 class="title">Thin, Young, and Healthy?</h1>
+      <p class="subtitle">A hands-on simulation of GLP-1s, Menopause, and the Anti-Aging Marketplace.</p>
+      <button class="btn" onclick="deck.next()">Begin Interactive Session →</button>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: HOW TO THINK ABOUT BMI -->
+  <section class="slide" data-slide="1">
+    <div class="slide-inner">
+      <p class="eyebrow">Concept 1: The Scale Lies</p>
+      <h2 class="slide-title">Two Women. Same Weight. Different Bodies.</h2>
+      <p class="lead">Let's start with a simulation. Both women weigh exactly <strong>70 kg</strong>. The scale says they are identical. Let's scan them.</p>
+      
+      <div class="grid-2">
+        <div style="text-align: center;">
+          <h3 style="margin-bottom: 1rem; color: var(--accent-primary);">Woman A (BMI 21)</h3>
+          <div class="body-scanner" id="scanner-a">
+            <div class="scan-line"></div>
+            <div class="organ-subcut" style="width: 120px; height: 160px; top: 35%; background: rgba(245, 158, 11, 0.2);"></div>
+            <div class="organ-muscle" style="width: 80px; height: 100px; top: 40%; background: rgba(59, 130, 246, 0.3);"></div>
+            <div class="organ-visceral" style="width: 90px; height: 90px; top: 45%;"></div>
+          </div>
+          <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">"Skinny fat" — Low muscle, high visceral fat.</p>
+        </div>
+        <div style="text-align: center;">
+          <h3 style="margin-bottom: 1rem; color: var(--accent-secondary);">Woman B (BMI 24)</h3>
+          <div class="body-scanner" id="scanner-b">
+            <div class="scan-line"></div>
+            <div class="organ-subcut" style="width: 140px; height: 170px; top: 35%; background: rgba(245, 158, 11, 0.4);"></div>
+            <div class="organ-muscle" style="width: 140px; height: 160px; top: 35%; background: rgba(59, 130, 246, 0.8);"></div>
+            <div class="organ-visceral" style="width: 40px; height: 40px; top: 50%;"></div>
+          </div>
+          <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">"Metabolically healthy" — High muscle, low visceral fat.</p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <button class="btn" onclick="runScanner()">Run CT Scan Simulation</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: BMI ELIGIBILITY FLOWCHART -->
+  <section class="slide" data-slide="2">
+    <div class="slide-inner">
+      <p class="eyebrow">Concept 2: Patient Selection</p>
+      <h2 class="slide-title">Who Is an Appropriate Candidate?</h2>
+      <p class="lead">Tap a patient profile below to see if they meet the criteria for pharmacotherapy.</p>
+      
+      <div class="grid-2">
+        <div class="flowchart">
+          <div class="flow-node" onclick="checkEligibility('case1')">BMI 31, No Comorbidities</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node" onclick="checkEligibility('case2')">BMI 28, Type 2 Diabetes</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-node" onclick="checkEligibility('case3')">BMI 26.4, Normal A1c, No Complications</div>
+        </div>
+        <div class="panel" style="min-height: 300px; display: flex; flex-direction: column; justify-content: center;">
+          <h3 style="text-align: center; margin-bottom: 1rem;">Eligibility Result</h3>
+          <div id="eligibility-result" style="text-align: center; color: var(--text-muted);">
+            Select a patient profile on the left.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: THE MUSCLE LOSS CALCULATOR -->
+  <section class="slide" data-slide="3">
+    <div class="slide-inner">
+      <p class="eyebrow">Concept 3: Preserving Lean Mass</p>
+      <h2 class="slide-title">The "Thin" Trap: What Are We Actually Losing?</h2>
+      <p class="lead">When a patient loses 15% of their body weight, how much of that is muscle? Drag the slider.</p>
+      
+      <div class="calculator-box" style="max-width: 700px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
+          <span>Scenario: Weight Loss</span>
+          <span id="loss-percent" style="color: var(--accent-primary);">0%</span>
+        </div>
+        <input type="range" id="calc-slider" min="0" max="15" value="0" step="1" style="width: 100%;">
+        
+        <div class="calc-bar-container">
+          <div class="calc-bar-muscle" id="bar-muscle" style="width: 100%;"></div>
+          <div class="calc-bar-fat" id="bar-fat" style="width: 0%;"></div>
+        </div>
+        <div class="calc-labels">
+          <span style="color: var(--success);" id="label-muscle">Muscle (26 kg)</span>
+          <span style="color: var(--warning);" id="label-fat">Fat (36 kg)</span>
+        </div>
+
+        <div class="panel" style="margin-top: 1.5rem; background: rgba(0, 229, 255, 0.05); border-color: var(--accent-primary);">
+          <p style="color: var(--text-main); font-size: 1.05rem;">
+            Without resistance training, <strong class="danger">33%</strong> of weight lost is muscle.<br>
+            With protein + resistance training, only <strong class="success">8%</strong> is muscle.
+          </p>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+          <button class="btn btn-outline" onclick="setCalcToggle(false)">Without Training (33%)</button>
+          <button class="btn btn-outline" onclick="setCalcToggle(true)">With Training (8%)</button>
+        </div>
+        <div id="muscle-readout" style="margin-top: 1rem; font-size: 1.1rem; font-weight: 700; color: var(--text-main);">
+          Muscle lost: 0.0 kg
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: SAFETY -->
+  <section class="slide" data-slide="4">
+    <div class="slide-inner">
+      <p class="eyebrow">Concept 4: Safety</p>
+      <h2 class="slide-title">Safety: What Do We Warn Patients About?</h2>
+      <div class="grid-3" style="margin-top: 2rem;">
+        <div class="panel" style="border-top: 3px solid var(--accent-primary);">
+          <h3>Common</h3>
+          <ul>
+            <li>Nausea, vomiting</li>
+            <li>Diarrhea, constipation</li>
+            <li>Abdominal discomfort</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--warning);">
+          <h3>Warnings</h3>
+          <ul>
+            <li>Pancreatitis</li>
+            <li>Gallbladder disease</li>
+            <li>Dehydration/AKI</li>
+            <li>Hypoglycemia</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--danger);">
+          <h3>Contraindicated</h3>
+          <ul>
+            <li>Medullary thyroid carcinoma</li>
+            <li>MEN2</li>
+          </ul>
+        </div>
+      </div>
+      <p style="text-align: center; margin-top: 2rem; color: var(--text-muted);">Always review pregnancy plans and peri-procedural considerations.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: TAKE HOME -->
+  <section class="slide" data-slide="5">
+    <div class="slide-inner">
+      <p class="eyebrow">Summary</p>
+      <h2 class="slide-title">Take-Home Messages</h2>
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+        <div class="panel" style="border-left: 4px solid var(--accent-primary);">
+          <p style="margin: 0;">GLP-1s are <strong>powerful treatments for obesity</strong>—not generic anti-aging drugs.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--accent-secondary);">
+          <p style="margin: 0;">Menopause changes fat distribution <strong>more than the scale suggests</strong>; protect muscle and bone.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--warning);">
+          <p style="margin: 0;">Discuss <strong>benefits, side effects, long-term expectations, and weight regain</strong> before starting.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--success);">
+          <p style="margin: 0;"><strong>Excellent documentation is clinical care.</strong></p>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 3rem;">
+        <a href="index.html" target="_blank" class="btn" style="text-decoration: none;">Launch Full Patient Visualizer ↗</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="deck.prev()">←</button>
+  <div class="nav-dots" id="navDots"></div>
+  <span class="nav-count" id="navCount">1 / 6</span>
+  <button class="nav-btn" id="nextBtn" onclick="deck.next()">→</button>
+</nav>
+
+<script>
+  // ── Deck Engine ──
+  const deck = {
+    current: 0, slides: document.querySelectorAll('.slide'), dotsContainer: document.getElementById('navDots'),
+    init() {
+      this.slides.forEach((s, i) => {
+        const d = document.createElement('button');
+        d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        d.onclick = () => this.goTo(i);
+        this.dotsContainer.appendChild(d);
+      });
+      this.updateUI();
+      document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); this.next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); this.prev(); }
+      });
+      let tX = 0;
+      document.addEventListener('touchstart', e => tX = e.changedTouches[0].screenX, {passive: true});
+      document.addEventListener('touchend', e => {
+        const diff = tX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev();
+      }, {passive: true});
+    },
+    goTo(i) {
+      if (i < 0 || i >= this.slides.length) return;
+      this.slides[this.current].classList.remove('active');
+      this.current = i;
+      this.slides[this.current].classList.add('active');
+      this.updateUI();
+    },
+    next() { this.goTo(this.current + 1); },
+    prev() { this.goTo(this.current - 1); },
+    updateUI() {
+      document.getElementById('navCount').textContent = `${this.current + 1} / ${this.slides.length}`;
+      document.getElementById('prevBtn').disabled = this.current === 0;
+      document.getElementById('nextBtn').disabled = this.current === this.slides.length - 1;
+      document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === this.current));
+    }
+  };
+  deck.init();
+
+  // ── SIMULATION 1: BODY SCANNER ──
+  function runScanner() {
+    const a = document.getElementById('scanner-a');
+    const b = document.getElementById('scanner-b');
+    a.classList.add('scanning');
+    b.classList.add('scanning');
+    setTimeout(() => { a.classList.remove('scanning'); b.classList.remove('scanning'); }, 5000);
+  }
+
+  // ── SIMULATION 2: ELIGIBILITY FLOWCHART ──
+  function checkEligibility(caseType) {
+    const resultDiv = document.getElementById('eligibility-result');
+    document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('active'));
+    
+    // Highlight active node
+    if (caseType === 'case1') {
+      document.querySelectorAll('.flow-node')[0].classList.add('active');
+      resultDiv.innerHTML = `<span class="success">ELIGIBLE</span><br><br>BMI ≥ 30 kg/m² meets criteria regardless of comorbidities.`;
+    } else if (caseType === 'case2') {
+      document.querySelectorAll('.flow-node')[1].classList.add('active');
+      resultDiv.innerHTML = `<span class="success">ELIGIBLE</span><br><br>BMI ≥ 27 kg/m² with a weight-related complication (Type 2 Diabetes).`;
+    } else {
+      document.querySelectorAll('.flow-node')[2].classList.add('active');
+      resultDiv.innerHTML = `<span class="danger">NOT ELIGIBLE</span><br><br>BMI 26.4 with no complications does not meet standard labeled criteria. Address menopause, sleep, and lifestyle first.`;
+    }
+  }
+
+  // ── SIMULATION 3: MUSCLE LOSS CALCULATOR ──
+  const slider = document.getElementById('calc-slider');
+  let isTraining = false;
+
+  function updateCalc() {
+    const lossPct = Number(slider.value);
+    document.getElementById('loss-percent').textContent = lossPct + '%';
+    
+    const baseWeight = 82;
+    const baseMuscle = 26;
+    const baseFat = 36;
+    
+    const totalLost = baseWeight * (lossPct / 100);
+    const muscleShare = isTraining ? 0.08 : 0.33;
+    const fatShare = isTraining ? 0.90 : 0.62;
+    
+    const muscleLost = totalLost * muscleShare;
+    const fatLost = totalLost * fatShare;
+    
+    const currentMuscle = baseMuscle - muscleLost;
+    const currentFat = baseFat - fatLost;
+
+    const musclePct = (currentMuscle / baseMuscle) * 100;
+    const fatPct = (currentFat / baseFat) * 100;
+
+    document.getElementById('bar-muscle').style.width = musclePct + '%';
+    document.getElementById('bar-fat').style.width = fatPct + '%';
+    
+    document.getElementById('label-muscle').textContent = `Muscle (${currentMuscle.toFixed(1)} kg)`;
+    document.getElementById('label-fat').textContent = `Fat (${currentFat.toFixed(1)} kg)`;
+    
+    const readout = document.getElementById('muscle-readout');
+    readout.innerHTML = `Muscle lost: <span style="color:${isTraining ? 'var(--success)' : 'var(--danger)'}">${muscleLost.toFixed(1)} kg</span>`;
+  }
+
+  function setCalcToggle(training) {
+    isTraining = training;
+    updateCalc();
+  }
+
+  slider.addEventListener('input', updateCalc);
+  updateCalc();
+</script>
+</body>
+</html>
