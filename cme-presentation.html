@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Thin, Young, and Healthy? | CME Presentation</title>
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --bg-panel: #121826;
+      --bg-panel-light: #1c2436;
+      --text-main: #f0f4f8;
+      --text-muted: #94a3b8;
+      --accent-primary: #00e5ff; /* Clinical Teal */
+      --accent-secondary: #3b82f6;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #2a364f;
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "SF Mono", "Courier New", Courier, monospace;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-main);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    /* ── Presentation Framework ──────────────────────── */
+    .deck { position: relative; width: 100vw; height: 100vh; }
+    
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 4rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      transition: opacity var(--transition), transform var(--transition), visibility 0s var(--transition);
+      overflow-y: auto;
+    }
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition: opacity var(--transition), transform var(--transition), visibility 0s 0s;
+    }
+    .slide.prev { transform: translateX(-40px); }
+
+    .slide-inner { max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    /* ── Typography & Accents ────────────────────────── */
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.75rem;
+      color: var(--accent-primary);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .eyebrow::before { content: ""; display: block; width: 24px; height: 2px; background: var(--accent-primary); }
+
+    h1.title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    h2.slide-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    p.lead {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 800px;
+      margin-bottom: 2rem;
+    }
+    p.lead strong { color: var(--text-main); }
+
+    .highlight { color: var(--accent-primary); font-weight: 700; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .warning { color: var(--warning); font-weight: 700; }
+    .success { color: var(--success); font-weight: 700; }
+
+    /* ── Layout Grids ────────────────────────────────── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .slide { padding: 2rem 1.5rem; }
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .panel:hover { border-color: var(--accent-secondary); }
+    .panel h3 { font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text-main); }
+    .panel p, .panel ul { font-size: 0.95rem; color: var(--text-muted); }
+    .panel ul { padding-left: 1.2rem; }
+    .panel li { margin-bottom: 0.5rem; }
+
+    /* ── Interactive Elements ────────────────────────── */
+    .btn {
+      background: var(--accent-primary);
+      color: var(--bg-dark);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; transform: scale(1.02); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover { border-color: var(--accent-primary); }
+
+    /* Slider */
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-primary);
+      margin: 1rem 0;
+      cursor: pointer;
+    }
+
+    /* Checklist */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--bg-panel-light);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .checklist li:hover { background: #263149; }
+    .checklist input[type="checkbox"] {
+      width: 20px; height: 20px; accent-color: var(--accent-primary); cursor: pointer;
+    }
+    .checklist label { cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+
+    /* ── Case Study Interactive ──────────────────────── */
+    .case-header {
+      background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), transparent);
+      border-left: 4px solid var(--accent-primary);
+      padding: 1rem 1.5rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 1.5rem;
+    }
+    .case-header h3 { color: var(--accent-primary); margin-bottom: 0.25rem; }
+    .case-options { display: flex; gap: 1rem; margin-top: 1rem; }
+    .case-result {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Navigation ──────────────────────────────────── */
+    .nav-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(10, 14, 23, 0.9);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+    .nav-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      font-size: 1.2rem; cursor: pointer; padding: 0.5rem;
+      transition: color 0.2s;
+    }
+    .nav-btn:hover { color: var(--accent-primary); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .nav-dots { display: flex; gap: 0.5rem; }
+    .nav-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); cursor: pointer; border: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-dot.active { background: var(--accent-primary); transform: scale(1.3); }
+    .nav-count { color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono); }
+
+    /* ── Specific Slide Styles ───────────────────────── */
+    .title-slide { text-align: center; align-items: center; }
+    .title-slide .subtitle {
+      font-size: 1.2rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 2rem;
+    }
+    .start-hint {
+      margin-top: 3rem; color: var(--accent-primary); font-size: 0.9rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .weight-loss-bars { display: flex; align-items: flex-end; gap: 2rem; height: 300px; margin-top: 2rem; padding-bottom: 2rem; border-bottom: 2px solid var(--border); }
+    .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .bar {
+      width: 60px; background: var(--accent-secondary); border-radius: 8px 8px 0 0;
+      transition: height 1s ease; position: relative;
+    }
+    .bar-label { margin-top: 0.75rem; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+    .bar-value { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-main); }
+  </style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: TITLE -->
+  <section class="slide title-slide active" data-slide="0">
+    <div class="slide-inner">
+      <p class="eyebrow">25-Minute Physician CME</p>
+      <h1 class="title">Thin, Young, and Healthy?</h1>
+      <p class="subtitle">Navigating GLP-1s, Menopause, and the Anti-Aging Marketplace</p>
+      <p style="font-size: 1rem; color: var(--accent-primary); font-weight: 600; margin-bottom: 2rem;">
+        Treat disease. Preserve function. Resist cosmetic prescribing pressure.
+      </p>
+      <button class="btn" onclick="deck.next()">Begin Presentation →</button>
+    </div>
+  </section>
+
+  <!-- SLIDE 2: OBJECTIVES -->
+  <section class="slide" data-slide="1">
+    <div class="slide-inner">
+      <p class="eyebrow">Learning Objectives</p>
+      <h2 class="slide-title">By the end of this session, you will be able to:</h2>
+      <div class="grid-3" style="margin-top: 2rem;">
+        <div class="panel" style="border-top: 3px solid var(--accent-primary);">
+          <h3>1. Evaluate</h3>
+          <p>Appropriate use, benefits, and risks of GLP-1 therapies for weight management.</p>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--accent-secondary);">
+          <h3>2. Recognize</h3>
+          <p>The impact of menopause and aging on weight, body composition, and metabolic health.</p>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--warning);">
+          <h3>3. Apply</h3>
+          <p>Practical strategies for prescribing, including documentation and navigating insurance approval.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: THE CASE -->
+  <section class="slide" data-slide="2">
+    <div class="slide-inner">
+      <p class="eyebrow">The Patient</p>
+      <h2 class="slide-title">Case Presentation</h2>
+      <div class="case-header">
+        <h3>52-year-old woman, perimenopausal</h3>
+        <p>Presents with: BMI 26.4 kg/m², increasing waist circumference despite stable scale weight.</p>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Symptoms & History</h3>
+          <ul>
+            <li>Sleep disruption</li>
+            <li>Vasomotor symptoms</li>
+            <li>Reduced resistance training</li>
+            <li>Normal A1c</li>
+            <li>No obesity-related comorbidity</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-color: var(--warning);">
+          <h3>The Request</h3>
+          <p>She requests semaglutide after seeing online <strong>"anti-aging"</strong> claims.</p>
+          <p style="margin-top: 1rem; color: var(--warning); font-weight: 600;">What is your next step?</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: THE ANTI-AGING MARKETPLACE -->
+  <section class="slide" data-slide="3">
+    <div class="slide-inner">
+      <p class="eyebrow">Indications & Boundaries</p>
+      <h2 class="slide-title">The Anti-Aging Marketplace: Where Indications Can Blur</h2>
+      <p class="lead">GLP-1 medications are highly effective obesity therapies, but demand increasingly extends beyond evidence-based indications.</p>
+      
+      <div class="grid-3" style="margin-top: 1.5rem;">
+        <div class="panel" style="border-left: 4px solid var(--success);">
+          <h3>Treatment</h3>
+          <p>Obesity/adiposity-related disease.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--warning);">
+          <h3>Prevention</h3>
+          <p>Prevention of complications.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--danger);">
+          <h3>Cosmetic</h3>
+          <p>Cosmetic weight reduction.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1.5rem; background: rgba(0, 229, 255, 0.05);">
+        <p style="font-size: 1.1rem; color: var(--text-main);">
+          <strong style="color: var(--accent-primary);">Anchor prescribing to:</strong> indication, expected health benefit, safety, affordability, and long-term feasibility.<br>
+          <span class="danger">Do not equate a lower number on the scale with improved health.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: WHO IS APPROPRIATE? -->
+  <section class="slide" data-slide="4">
+    <div class="slide-inner">
+      <p class="eyebrow">Patient Selection</p>
+      <h2 class="slide-title">Who Is an Appropriate Candidate?</h2>
+      <p class="lead">Consider anti-obesity pharmacotherapy with health-behavior treatment for adults with:</p>
+      
+      <div class="grid-2">
+        <div class="panel" style="border-top: 3px solid var(--accent-primary);">
+          <h3>BMI ≥ 30 kg/m²</h3>
+          <p>Regardless of comorbidities.</p>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--accent-secondary);">
+          <h3>BMI ≥ 27 kg/m²</h3>
+          <p>With weight-related complications.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 1.5rem;">
+        <h3>Look Beyond BMI</h3>
+        <ul>
+          <li>Central adiposity</li>
+          <li>Metabolic disease</li>
+          <li>Sleep apnea</li>
+          <li>Cardiovascular disease</li>
+          <li>Functional limitation</li>
+          <li>Weight trajectory</li>
+        </ul>
+        <p style="margin-top: 1rem; color: var(--danger); font-weight: 600;">Confirm that the chosen product and indication match the patient—not a compounded or off-label "wellness" substitute.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: MAGNITUDE OF WEIGHT LOSS -->
+  <section class="slide" data-slide="5">
+    <div class="slide-inner">
+      <p class="eyebrow">Expected Outcomes</p>
+      <h2 class="slide-title">What Magnitude of Weight Loss Should We Discuss?</h2>
+      <p class="lead">Trial averages are not promises to an individual patient.</p>
+
+      <div class="panel">
+        <h3 style="text-align: center; margin-bottom: 1rem;">Mean Weight Loss at 68-72 Weeks</h3>
+        <div class="weight-loss-bars">
+          <div class="bar-group">
+            <div class="bar" style="height: 75%; background: var(--accent-primary);"><span class="bar-value">-15%</span></div>
+            <div class="bar-label">Semaglutide<br>2.4 mg</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 75%; background: var(--accent-primary);"><span class="bar-value">-15%</span></div>
+            <div class="bar-label">Tirzepatide<br>5 mg</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 95%; background: var(--accent-secondary);"><span class="bar-value">-19.5%</span></div>
+            <div class="bar-label">Tirzepatide<br>10 mg</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 100%; background: var(--accent-secondary);"><span class="bar-value">-21%</span></div>
+            <div class="bar-label">Tirzepatide<br>15 mg</div>
+          </div>
+        </div>
+        <p style="text-align: center; margin-top: 1.5rem; font-weight: 700; color: var(--accent-primary);">Frame outcomes around health and function—not a target "thin" body size.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: BENEFITS BEYOND THE SCALE -->
+  <section class="slide" data-slide="6">
+    <div class="slide-inner">
+      <p class="eyebrow">Cardiometabolic & Functional Benefits</p>
+      <h2 class="slide-title">Benefits Beyond the Scale</h2>
+      
+      <div class="grid-3">
+        <div class="panel" style="border-top: 3px solid var(--danger);">
+          <h3>Semaglutide 2.4 mg</h3>
+          <p>FDA indication to reduce <strong>cardiovascular death, MI, and stroke</strong> in adults with established CVD and overweight/obesity.</p>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--accent-primary);">
+          <h3>Tirzepatide</h3>
+          <p>FDA-approved for <strong>moderate-to-severe obstructive sleep apnea</strong> in adults with obesity.</p>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--success);">
+          <h3>Prediabetes</h3>
+          <p>3 years of tirzepatide produced sustained weight reduction and <strong>substantially less progression to T2DM</strong> vs placebo.</p>
+        </div>
+      </div>
+      <p style="text-align: center; margin-top: 2rem; color: var(--accent-primary); font-weight: 600; font-size: 1.1rem;">
+        Match the drug to the patient's complication profile whenever possible.
+      </p>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: MENOPAUSE CHANGES THE CONVERSATION -->
+  <section class="slide" data-slide="7">
+    <div class="slide-inner">
+      <p class="eyebrow">Menopause & Body Composition</p>
+      <h2 class="slide-title">Menopause Changes the Conversation</h2>
+      
+      <div class="grid-2">
+        <div>
+          <ul style="list-style-type: none; padding: 0;">
+            <li style="margin-bottom: 1rem; padding-left: 1.5rem; border-left: 2px solid var(--accent-primary);">
+              <strong>Aging</strong> is a major driver of midlife weight gain through declining energy expenditure and loss of lean mass.
+            </li>
+            <li style="margin-bottom: 1rem; padding-left: 1.5rem; border-left: 2px solid var(--warning);">
+              <strong>Menopause</strong> independently favors redistribution toward abdominal/visceral fat as estrogen declines—even when total weight changes modestly.
+            </li>
+            <li style="margin-bottom: 1rem; padding-left: 1.5rem; border-left: 2px solid var(--danger);">
+              <strong>Sleep disturbance, vasomotor symptoms, mood changes, reduced activity, and medications</strong> can amplify weight and metabolic changes.
+            </li>
+          </ul>
+        </div>
+        <div class="panel" style="background: rgba(0, 229, 255, 0.05); border-color: var(--accent-primary);">
+          <h3 style="color: var(--accent-primary);">Assess:</h3>
+          <ul>
+            <li>Waist circumference</li>
+            <li>Strength / function</li>
+            <li>Sleep</li>
+            <li>Cardiometabolic risk</li>
+            <li>Diet quality</li>
+            <li>Symptoms</li>
+          </ul>
+          <p style="margin-top: 1rem; color: var(--danger); font-weight: 700; text-align: center;">— NOT weight alone —</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: THE "THIN" TRAP -->
+  <section class="slide" data-slide="8">
+    <div class="slide-inner">
+      <p class="eyebrow">Preserving Lean Mass</p>
+      <h2 class="slide-title">The "Thin" Trap: Preserve Lean Mass and Bone</h2>
+      <p class="lead">Weight loss includes both fat mass and lean tissue; midlife adults already face age-related muscle loss.</p>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3 style="color: var(--accent-primary);">Before & During GLP-1 Therapy:</h3>
+          <ul>
+            <li><strong>Prioritize adequate protein intake</strong></li>
+            <li><strong>Progressive resistance exercise</strong></li>
+            <li><strong>Assessment of functional decline</strong></li>
+          </ul>
+        </div>
+        <div class="panel" style="border-color: var(--warning);">
+          <h3 style="color: var(--warning);">Consider Nutrition Referral When:</h3>
+          <ul>
+            <li>Intake is markedly reduced</li>
+            <li>GI adverse effects persist</li>
+            <li>Frailty/sarcopenia risk is present</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top: 1.5rem; text-align: center; color: var(--text-muted);">
+        Menopause care still requires independent attention to <strong>bone health, cardiovascular risk, sleep, and menopausal symptoms.</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: SAFETY -->
+  <section class="slide" data-slide="9">
+    <div class="slide-inner">
+      <p class="eyebrow">Safety Profile</p>
+      <h2 class="slide-title">Safety: Discuss Before the First Dose</h2>
+      
+      <div class="grid-3">
+        <div class="panel" style="border-top: 3px solid var(--accent-primary);">
+          <h3>Common (dose escalation)</h3>
+          <ul>
+            <li>Nausea, vomiting</li>
+            <li>Diarrhea, constipation</li>
+            <li>Abdominal discomfort/reflux</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--warning);">
+          <h3>Important Warnings</h3>
+          <ul>
+            <li>Pancreatitis</li>
+            <li>Gallbladder disease</li>
+            <li>Dehydration/AKI</li>
+            <li>Hypersensitivity</li>
+            <li>Hypoglycemia (with insulin/secretagogues)</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-top: 3px solid var(--danger);">
+          <h3>Contraindications</h3>
+          <ul>
+            <li>Personal/family history of <strong>medullary thyroid carcinoma</strong></li>
+            <li><strong>MEN2</strong> (for products with boxed warning)</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top: 1.5rem; text-align: center; font-size: 0.95rem; color: var(--text-muted);">
+        Review pregnancy plans and peri-procedural/anesthesia considerations; follow current product labeling and specialty guidance.
+      </p>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: LONG-TERM TREATMENT -->
+  <section class="slide" data-slide="10">
+    <div class="slide-inner">
+      <p class="eyebrow">Chronic Disease Management</p>
+      <h2 class="slide-title">Set Expectations: Treatment Is Usually Long-Term</h2>
+      
+      <div class="panel" style="background: rgba(239, 68, 68, 0.05); border-color: var(--danger); margin-bottom: 1.5rem;">
+        <h3 style="color: var(--danger);">STEP 1 Extension Data</h3>
+        <ul>
+          <li>After 68 weeks of semaglutide, mean weight loss was <strong>17.3%</strong>.</li>
+          <li>One year after withdrawal, participants <strong>regained 11.6 percentage points</strong>—about two-thirds of the prior loss.</li>
+          <li>Many cardiometabolic improvements moved back toward baseline after discontinuation.</li>
+        </ul>
+      </div>
+
+      <div class="panel" style="border-color: var(--accent-primary);">
+        <h3 style="color: var(--accent-primary);">Counsel Before Starting:</h3>
+        <ul>
+          <li>Is long-term therapy acceptable?</li>
+          <li>Can the patient afford/access it?</li>
+          <li>What is the maintenance plan?</li>
+          <li>What if coverage stops?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12: THE 5-STEP CLINICAL WORKFLOW -->
+  <section class="slide" data-slide="11">
+    <div class="slide-inner">
+      <p class="eyebrow">Clinical Workflow</p>
+      <h2 class="slide-title">Prescribing Checklist</h2>
+      
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+        <div class="panel" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;">
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent-primary);">1</span>
+          <p style="margin: 0;"><strong>Establish diagnosis and indication:</strong> BMI + central adiposity + weight-related complications + trajectory.</p>
+        </div>
+        <div class="panel" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;">
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent-primary);">2</span>
+          <p style="margin: 0;"><strong>Define a health-centered goal:</strong> metabolic risk, mobility, OSA, cardiovascular risk, function—not simply clothing size.</p>
+        </div>
+        <div class="panel" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;">
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent-primary);">3</span>
+          <p style="margin: 0;"><strong>Screen for contraindications/precautions:</strong> glucose-lowering therapy, pregnancy plans, GI history, and procedure plans.</p>
+        </div>
+        <div class="panel" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;">
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent-primary);">4</span>
+          <p style="margin: 0;"><strong>Start low and titrate per label:</strong> address nutrition, hydration, protein, and resistance activity from day 1.</p>
+        </div>
+        <div class="panel" style="display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;">
+          <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent-primary);">5</span>
+          <p style="margin: 0;"><strong>Reassess tolerability, response, adherence, function/body-composition concerns,</strong> and continued clinical value.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 13: DOCUMENTATION -->
+  <section class="slide" data-slide="12">
+    <div class="slide-inner">
+      <p class="eyebrow">Insurance & Documentation</p>
+      <h2 class="slide-title">Documentation That Supports Prior Authorization</h2>
+      <p class="lead" style="margin-bottom: 1.5rem;">Click each item to build a complete documentation packet.</p>
+      
+      <div class="grid-2">
+        <div>
+          <ul class="checklist" id="doc-checklist">
+            <li><input type="checkbox" id="doc1"><label for="doc1">Measured height, weight, BMI, waist circumference, and weight trajectory</label></li>
+            <li><input type="checkbox" id="doc2"><label for="doc2">Obesity/overweight-related diagnoses and complications with ICD-10 specificity</label></li>
+            <li><input type="checkbox" id="doc3"><label for="doc3">Prior structured weight-management efforts (nutrition, activity, behavioral, prior meds)</label></li>
+            <li><input type="checkbox" id="doc4"><label for="doc4">Requested drug, FDA-labeled indication, clinical rationale, goals, and monitoring plan</label></li>
+            <li><input type="checkbox" id="doc5"><label for="doc5">Attach objective records when required; document contraindications or formulary failures</label></li>
+          </ul>
+        </div>
+        <div class="panel" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+          <div style="font-size: 3rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 0.5rem;" id="doc-progress">0%</div>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Documentation Packet Complete</p>
+          <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);" id="doc-status">Check all boxes to build the PA packet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14: NAVIGATING INSURANCE -->
+  <section class="slide" data-slide="13">
+    <div class="slide-inner">
+      <p class="eyebrow">Practical Strategy</p>
+      <h2 class="slide-title">Navigating Insurance: A 5-Minute Office Strategy</h2>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+        <div class="panel" style="border-left: 3px solid var(--accent-primary);">
+          <h3>Before Prescribing</h3>
+          <ul>
+            <li>Verify the pharmacy benefit and exact anti-obesity medication coverage.</li>
+            <li>Use the plan's preferred agent when clinically appropriate.</li>
+            <li>Confirm prior authorization, step therapy, and lifestyle-documentation requirements.</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-left: 3px solid var(--accent-secondary);">
+          <h3>When Submitting</h3>
+          <ul>
+            <li>Submit diagnosis + anthropometrics + comorbidities + prior attempts + rationale as <strong>one coherent packet</strong>.</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-left: 3px solid var(--warning);">
+          <h3>If Denied</h3>
+          <ul>
+            <li>Identify the <strong>exact unmet criterion</strong> before appealing—do not simply resubmit.</li>
+          </ul>
+        </div>
+        <div class="panel" style="border-left: 3px solid var(--danger);">
+          <h3>Continuity & Cost</h3>
+          <ul>
+            <li>Discuss early: loss of coverage can become a clinical issue because weight regain after discontinuation is common.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 15: CASE REVISITED -->
+  <section class="slide" data-slide="14">
+    <div class="slide-inner">
+      <p class="eyebrow">Back to the Case</p>
+      <h2 class="slide-title">Case Revisited: What Would You Do?</h2>
+      
+      <div class="panel" style="margin-bottom: 1.5rem;">
+        <p><strong>Her BMI of 26.4 kg/m² without a qualifying weight-related comorbidity does not meet the usual labeled BMI threshold for chronic weight-management pharmacotherapy.</strong></p>
+      </div>
+
+      <div class="case-options">
+        <button class="btn btn-outline" onclick="showCaseResult('rx')">Prescribe Semaglutide</button>
+        <button class="btn btn-outline" onclick="showCaseResult('menopause')">Treat Menopause & Lifestyle</button>
+      </div>
+
+      <div class="case-result" id="case-result-rx" style="border-color: var(--danger); background: rgba(239,68,68,0.05);">
+        <h3 style="color: var(--danger);">Incorrect</h3>
+        <p>Prescribing off-label for cosmetic weight loss in a patient who does not meet the BMI threshold exposes her to side effects without a clear evidence-based benefit. This is exactly the "anti-aging marketplace" trap.</p>
+      </div>
+
+      <div class="case-result" id="case-result-menopause" style="border-color: var(--success); background: rgba(16,185,129,0.05);">
+        <h3 style="color: var(--success);">Correct</h3>
+        <p>Address menopause symptoms, sleep, resistance training, nutrition, waist/body-composition trajectory, and cardiometabolic risk. If future clinical criteria for pharmacotherapy are met, revisit treatment using a health-centered goal and long-term plan.</p>
+        <p style="margin-top: 1rem; font-weight: 700; color: var(--text-main);">The goal is not to make every patient thinner. It is to make the right patient healthier.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 16: TAKE-HOME MESSAGES -->
+  <section class="slide" data-slide="15">
+    <div class="slide-inner">
+      <p class="eyebrow">Summary</p>
+      <h2 class="slide-title">Take-Home Messages</h2>
+      
+      <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+        <div class="panel" style="border-left: 4px solid var(--accent-primary);">
+          <p style="margin: 0; font-size: 1.05rem;">GLP-1/GIP-based therapies are <strong>powerful treatments for obesity and selected obesity-related complications</strong>—not generic anti-aging drugs.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--accent-secondary);">
+          <p style="margin: 0; font-size: 1.05rem;">Menopause often changes fat distribution and body composition <strong>more than the scale suggests</strong>; protect muscle, bone, sleep, and metabolic health.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--warning);">
+          <p style="margin: 0; font-size: 1.05rem;">Discuss <strong>benefits, adverse effects, long-term treatment expectations, and possible weight regain</strong> before initiation.</p>
+        </div>
+        <div class="panel" style="border-left: 4px solid var(--success);">
+          <p style="margin: 0; font-size: 1.05rem;"><strong>Excellent documentation is clinical care:</strong> diagnosis, complications, prior treatment, rationale, goals, and monitoring should be explicit.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 17: REFERENCES -->
+  <section class="slide" data-slide="16">
+    <div class="slide-inner">
+      <p class="eyebrow">Evidence Base</p>
+      <h2 class="slide-title">References</h2>
+      <ol style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; padding-left: 1.5rem; column-count: 2; column-gap: 2rem;">
+        <li>Wharton S, et al. Pharmacotherapy for obesity management in adults: 2025 clinical practice guideline update.</li>
+        <li>Wilding JPH, et al. Once-Weekly Semaglutide in Adults with Overweight or Obesity. <em>N Engl J Med.</em> 2021;384:989-1002.</li>
+        <li>Wilding JPH, et al. Weight regain and cardiometabolic effects after withdrawal of semaglutide: STEP 1 extension. <em>Diabetes Obes Metab.</em> 2022;24:1553-1564.</li>
+        <li>Jastreboff AM, et al. Tirzepatide Once Weekly for the Treatment of Obesity. <em>N Engl J Med.</em> 2022;387:205-216.</li>
+        <li>Jastreboff AM, et al. Tirzepatide for Obesity Treatment and Diabetes Prevention. <em>N Engl J Med.</em> 2024/2025.</li>
+        <li>U.S. FDA. Wegovy cardiovascular risk-reduction indication. 2024.</li>
+        <li>U.S. FDA. Zepbound for moderate-to-severe obstructive sleep apnea in adults with obesity. 2024.</li>
+        <li>The Menopause Society. Midlife Weight Gain. Updated 2025.</li>
+        <li>American Medical Association. Private Insurance Coverage of Anti-Obesity Medications. 2026.</li>
+        <li>WHO guideline on GLP-1 therapies for adults living with obesity; summary in JAMA.</li>
+      </ol>
+      <div style="text-align: center; margin-top: 3rem;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Thank you. Questions?</p>
+        <button class="btn" onclick="deck.goTo(0)">Restart Presentation</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Navigation Bar -->
+<nav class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="deck.prev()">←</button>
+  <div class="nav-dots" id="navDots"></div>
+  <span class="nav-count" id="navCount">1 / 17</span>
+  <button class="nav-btn" id="nextBtn" onclick="deck.next()">→</button>
+</nav>
+
+<script>
+  // ── Presentation Engine ──────────────────────────────
+  const deck = {
+    current: 0,
+    slides: document.querySelectorAll('.slide'),
+    dotsContainer: document.getElementById('navDots'),
+    
+    init() {
+      this.slides.forEach((slide, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.onclick = () => this.goTo(i);
+        this.dotsContainer.appendChild(dot);
+      });
+      this.updateUI();
+      
+      // Keyboard nav
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); this.next(); }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); this.prev(); }
+      });
+
+      // Swipe nav
+      let touchStartX = 0;
+      document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
+      document.addEventListener('touchend', e => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 50) diff > 0 ? this.next() : this.prev();
+      }, {passive: true});
+    },
+
+    goTo(index) {
+      if (index < 0 || index >= this.slides.length) return;
+      this.slides[this.current].classList.remove('active');
+      this.slides[this.current].classList.add('prev');
+      
+      this.current = index;
+      
+      this.slides[this.current].classList.remove('prev');
+      this.slides[this.current].classList.add('active');
+      this.updateUI();
+    },
+
+    next() { this.goTo(this.current + 1); },
+    prev() { this.goTo(this.current - 1); },
+
+    updateUI() {
+      document.getElementById('navCount').textContent = `${this.current + 1} / ${this.slides.length}`;
+      document.getElementById('prevBtn').disabled = this.current === 0;
+      document.getElementById('nextBtn').disabled = this.current === this.slides.length - 1;
+      
+      document.querySelectorAll('.nav-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === this.current);
+      });
+    }
+  };
+
+  deck.init();
+
+  // ── Interactive Slide Logic ──────────────────────────
+
+  // Slide 13: Documentation Checklist
+  const docCheckboxes = document.querySelectorAll('#doc-checklist input[type="checkbox"]');
+  const docProgress = document.getElementById('doc-progress');
+  const docStatus = document.getElementById('doc-status');
+
+  if (docCheckboxes.length > 0) {
+    docCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const checked = document.querySelectorAll('#doc-checklist input:checked').length;
+        const total = docCheckboxes.length;
+        const pct = Math.round((checked / total) * 100);
+        
+        docProgress.textContent = `${pct}%`;
+        
+        if (pct === 100) {
+          docProgress.style.color = 'var(--success)';
+          docStatus.textContent = 'Ready to submit. Packet complete.';
+          docStatus.style.color = 'var(--success)';
+        } else {
+          docProgress.style.color = 'var(--accent-primary)';
+          docStatus.textContent = 'Check all boxes to build the PA packet.';
+          docStatus.style.color = 'var(--text-muted)';
+        }
+      });
+    });
+  }
+
+  // Slide 15: Case Study Interaction
+  function showCaseResult(type) {
+    document.getElementById('case-result-rx').style.display = 'none';
+    document.getElementById('case-result-menopause').style.display = 'none';
+    
+    if (type === 'rx') {
+      document.getElementById('case-result-rx').style.display = 'block';
+    } else {
+      document.getElementById('case-result-menopause').style.display = 'block';
+    }
+  }
+
+  // Slide 6: Animate Bars on Load
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bars = entry.target.querySelectorAll('.bar');
+        bars.forEach(bar => {
+          const targetHeight = bar.style.height;
+          bar.style.height = '0%';
+          setTimeout(() => { bar.style.height = targetHeight; }, 100);
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+
+  const barSlide = document.querySelector('[data-slide="5"]');
+  if (barSlide) barObserver.observe(barSlide);
+
+</script>
+</body>
+</html>
