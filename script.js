@@ -10,7 +10,7 @@ const WOMEN = [
     id: "w1",
     name: "Woman A",
     bmi: 21,
-    face: "faces/woman-a.jpg",
+    face: "faces/women-a.jpg",
     shortCaption: "Low BMI, but look inside.",
     composition: { muscle: 22, subcutaneousFat: 30, visceralFat: 78 },
     risk: { level: "high", label: "High — hidden visceral fat, low muscle" },
@@ -20,7 +20,7 @@ const WOMEN = [
     id: "w2",
     name: "Woman B",
     bmi: 24,
-    face: "faces/woman-b.jpg",
+    face: "faces/women-b.jpg",
     shortCaption: "Higher BMI, stronger inside.",
     composition: { muscle: 76, subcutaneousFat: 52, visceralFat: 18 },
     risk: { level: "low", label: "Low — protective muscle, little visceral fat" },
@@ -29,12 +29,12 @@ const WOMEN = [
   {
     id: "w3",
     name: "Woman C",
-    bmi: 36,
-    face: "faces/woman-c.jpg",
-    shortCaption: "Largest frame, metabolically protected.",
+    bmi: 30,
+    face: "faces/women-c.jpg",
+    shortCaption: "Higher BMI, metabolically protected.",
     composition: { muscle: 45, subcutaneousFat: 35, visceralFat: 20 },
     risk: { level: "moderate", label: "Moderate — high mass but muscle-preserved" },
-    note: "The 'metabolically protected obesity' profile. BMI is highest here, yet substantial muscle mass and comparatively low visceral fat offset much of the cardiometabolic risk. The target of any intervention is not a lower number — it is shifting the ratio toward muscle and away from visceral fat."
+    note: "The 'metabolically protected obesity' profile. BMI is higher here, yet substantial muscle mass and comparatively low visceral fat offset much of the cardiometabolic risk. The target of any intervention is not a lower number — it is shifting the ratio toward muscle and away from visceral fat."
   }
 ];
 
@@ -61,7 +61,7 @@ const QUIZ = {
   options: [
     { id: "w1",  label: "Woman A",     bmi: 21 },
     { id: "w2",  label: "Woman B",     bmi: 24 },
-    { id: "w3",  label: "Woman C",     bmi: 36 },
+    { id: "w3",  label: "Woman C",     bmi: 30 },
     { id: "all", label: "All equally", bmi: "—" }
   ],
   correct: "w1",
